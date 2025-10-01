@@ -1,0 +1,105 @@
+.navbar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 250px;
+  background: linear-gradient(180deg, var(--primary-color) 0%, #1565c0 100%);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.navbar-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin: 0;
+}
+
+.navbar-menu {
+  flex: 1;
+  list-style: none;
+  padding: 20px 0;
+  margin: 0;
+}
+
+.navbar-item {
+  margin: 0;
+}
+
+.navbar-link {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  color: white;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+.navbar-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-left-color: white;
+}
+
+.navbar-link.active {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-left-color: white;
+  font-weight: bold;
+}
+
+.navbar-icon {
+  font-size: 1.2rem;
+  margin-right: 12px;
+  width: 20px;
+  text-align: center;
+}
+
+.navbar-label {
+  font-size: 0.95rem;
+}
+
+.navbar-footer {
+  padding: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.user-name {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.user-role {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
