@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 // Configuración base de Axios
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8888/api'
+// const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8888/api'
+const API_URL = import.meta.env.VITE_API_URL || 'https://erp.redbyraices.com/api'
 
 const api = axios.create({
   baseURL: API_URL,

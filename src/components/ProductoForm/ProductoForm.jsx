@@ -58,6 +58,17 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
     }
   }, [producto])
 
+  // Expresiones regulares para validación de productos químicos
+  const regexPatterns = {
+    codigo_producto: /^[A-Z0-9\-]{3,20}$/,
+    nombre: /^[a-zA-ZÀ-ÿ\u00f1\u00d1\s0-9%°\-.,()]{2,200}$/,
+    descripcion: /^[a-zA-ZÀ-ÿ\u00f1\u00d1\s0-9%°\-.,()\/\n]{0,1000}$/,
+    ubicacion_almacen: /^[a-zA-Z0-9\s\-.,()]{0,100}$/,
+    precio: /^\d+(\.\d{1,2})?$/,
+    stock: /^\d+(\.\d{1,3})?$/,
+    proveedor_id: /^\d+$/
+  }
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setFormData(prev => ({
@@ -65,33 +76,139 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
       [name]: type === 'checkbox' ? checked : value
     }))
     
-    // Limpiar error del campo cuando el usuario empiece a escribir
+    // Validación en tiempo real para ciertos campos
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: '' }))
+      const fieldErrors = {}
+      
+      switch (name) {
+        case 'codigo_producto':
+          if (value && value.trim() && !regexPatterns.codigo_producto.test(value.trim().toUpperCase())) {
+            fieldErrors.codigo_producto = 'El código debe tener 3-20 caracteres (letras mayúsculas, números y guiones). Ej: QUI-001, ACID-H2SO4'
+          }
+          break
+          
+        case 'precio_venta':
+        case 'precio_costo':
+          if (value && !regexPatterns.precio.test(value)) {
+            fieldErrors[name] = 'Ingrese un precio válido (máximo 2 decimales). Ej: 150.50'
+          } else if (value && parseFloat(value) <= 0) {
+            fieldErrors[name] = 'El precio debe ser mayor a 0'
+          }
+          break
+          
+        case 'stock_actual':
+        case 'stock_minimo':
+          if (value && !regexPatterns.stock.test(value)) {
+            fieldErrors[name] = 'Ingrese una cantidad válida (máximo 3 decimales). Ej: 25.750'
+          } else if (value && parseFloat(value) < 0) {
+            fieldErrors[name] = 'La cantidad no puede ser negativa'
+          }
+          break
+          
+        case 'proveedor_id':
+          if (value && !regexPatterns.proveedor_id.test(value)) {
+            fieldErrors.proveedor_id = 'El ID del proveedor debe ser un número entero'
+          }
+          break
+      }
+      
+      setErrors(prev => ({
+        ...prev,
+        [name]: fieldErrors[name] || ''
+      }))
     }
   }
 
   const validateForm = () => {
     const newErrors = {}
 
+    // Validar código de producto (obligatorio)
     if (!formData.codigo_producto.trim()) {
       newErrors.codigo_producto = 'El código del producto es requerido'
+    } else if (!regexPatterns.codigo_producto.test(formData.codigo_producto.trim().toUpperCase())) {
+      newErrors.codigo_producto = 'El código debe tener 3-20 caracteres (letras mayúsculas, números y guiones). Ej: QUI-001, ACID-H2SO4'
     }
 
+    // Validar nombre (obligatorio)
     if (!formData.nombre.trim()) {
       newErrors.nombre = 'El nombre del producto es requerido'
+    } else if (!regexPatterns.nombre.test(formData.nombre.trim())) {
+      newErrors.nombre = 'El nombre puede contener letras, números, espacios y símbolos químicos (%, °, -, ., (, )) - 2 a 200 caracteres'
     }
 
+    // Validar categoría (obligatorio)
     if (!formData.categoria) {
       newErrors.categoria = 'La categoría es requerida'
     }
 
-    if (!formData.precio_venta || parseFloat(formData.precio_venta) <= 0) {
-      newErrors.precio_venta = 'El precio de venta debe ser mayor a 0'
+    // Validar descripción (opcional)
+    if (formData.descripcion && formData.descripcion.trim() && !regexPatterns.descripcion.test(formData.descripcion.trim())) {
+      newErrors.descripcion = 'La descripción contiene caracteres no válidos (máximo 1000 caracteres)'
     }
 
-    if (!formData.precio_costo || parseFloat(formData.precio_costo) <= 0) {
+    // Validar precio de venta (obligatorio)
+    if (!formData.precio_venta) {
+      newErrors.precio_venta = 'El precio de venta es requerido'
+    } else if (!regexPatterns.precio.test(formData.precio_venta)) {
+      newErrors.precio_venta = 'Ingrese un precio válido (máximo 2 decimales). Ej: 150.50'
+    } else if (parseFloat(formData.precio_venta) <= 0) {
+      newErrors.precio_venta = 'El precio de venta debe ser mayor a 0'
+    } else if (parseFloat(formData.precio_venta) > 999999999.99) {
+      newErrors.precio_venta = 'El precio de venta es demasiado alto (máximo: $999,999,999.99)'
+    }
+
+    // Validar precio de costo (obligatorio)
+    if (!formData.precio_costo) {
+      newErrors.precio_costo = 'El precio de costo es requerido'
+    } else if (!regexPatterns.precio.test(formData.precio_costo)) {
+      newErrors.precio_costo = 'Ingrese un precio válido (máximo 2 decimales). Ej: 120.25'
+    } else if (parseFloat(formData.precio_costo) <= 0) {
       newErrors.precio_costo = 'El precio de costo debe ser mayor a 0'
+    } else if (parseFloat(formData.precio_costo) > 999999999.99) {
+      newErrors.precio_costo = 'El precio de costo es demasiado alto (máximo: $999,999,999.99)'
+    }
+
+    // Validar que precio de venta sea mayor al precio de costo
+    if (formData.precio_venta && formData.precio_costo && 
+        parseFloat(formData.precio_venta) <= parseFloat(formData.precio_costo)) {
+      newErrors.precio_venta = 'El precio de venta debe ser mayor al precio de costo'
+    }
+
+    // Validar stock actual (opcional)
+    if (formData.stock_actual && formData.stock_actual.trim()) {
+      if (!regexPatterns.stock.test(formData.stock_actual)) {
+        newErrors.stock_actual = 'Ingrese una cantidad válida (máximo 3 decimales). Ej: 25.750'
+      } else if (parseFloat(formData.stock_actual) < 0) {
+        newErrors.stock_actual = 'El stock actual no puede ser negativo'
+      }
+    }
+
+    // Validar stock mínimo (opcional)
+    if (formData.stock_minimo && formData.stock_minimo.trim()) {
+      if (!regexPatterns.stock.test(formData.stock_minimo)) {
+        newErrors.stock_minimo = 'Ingrese una cantidad válida (máximo 3 decimales). Ej: 5.000'
+      } else if (parseFloat(formData.stock_minimo) < 0) {
+        newErrors.stock_minimo = 'El stock mínimo no puede ser negativo'
+      }
+    }
+
+    // Validar que stock mínimo no sea mayor al stock actual (si ambos están presentes)
+    if (formData.stock_actual && formData.stock_minimo && 
+        parseFloat(formData.stock_minimo) > parseFloat(formData.stock_actual)) {
+      newErrors.stock_minimo = 'El stock mínimo no puede ser mayor al stock actual'
+    }
+
+    // Validar proveedor ID (opcional)
+    if (formData.proveedor_id && formData.proveedor_id.trim()) {
+      if (!regexPatterns.proveedor_id.test(formData.proveedor_id.trim())) {
+        newErrors.proveedor_id = 'El ID del proveedor debe ser un número entero'
+      }
+    }
+
+    // Validar ubicación de almacén (opcional)
+    if (formData.ubicacion_almacen && formData.ubicacion_almacen.trim() && 
+        !regexPatterns.ubicacion_almacen.test(formData.ubicacion_almacen.trim())) {
+      newErrors.ubicacion_almacen = 'La ubicación puede contener letras, números, espacios y caracteres especiales básicos (máximo 100 caracteres)'
     }
 
     setErrors(newErrors)
@@ -159,9 +276,18 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
                 id="codigo_producto"
                 name="codigo_producto"
                 value={formData.codigo_producto}
-                onChange={handleChange}
+                onChange={(e) => {
+                  const upperValue = e.target.value.toUpperCase()
+                  handleChange({
+                    target: {
+                      name: 'codigo_producto',
+                      value: upperValue
+                    }
+                  })
+                }}
                 className={errors.codigo_producto ? 'error' : ''}
-                placeholder="Ej: QUI-001"
+                placeholder="Ej: QUI-001, ACID-H2SO4"
+                maxLength="20"
               />
               {errors.codigo_producto && (
                 <span className="error-message">{errors.codigo_producto}</span>
@@ -198,7 +324,8 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
               value={formData.nombre}
               onChange={handleChange}
               className={errors.nombre ? 'error' : ''}
-              placeholder="Ej: Ácido Sulfúrico 98%"
+              placeholder="Ej: Ácido Sulfúrico 98%, Hidróxido de Sodio"
+              maxLength="200"
             />
             {errors.nombre && (
               <span className="error-message">{errors.nombre}</span>
@@ -213,9 +340,14 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
               name="descripcion"
               value={formData.descripcion}
               onChange={handleChange}
+              className={errors.descripcion ? 'error' : ''}
               rows="3"
-              placeholder="Descripción detallada del producto químico..."
+              placeholder="Descripción detallada del producto químico, fórmula molecular, aplicaciones, etc."
+              maxLength="1000"
             />
+            {errors.descripcion && (
+              <span className="error-message">{errors.descripcion}</span>
+            )}
           </div>
 
           {/* Precios */}
@@ -231,7 +363,8 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
                 className={errors.precio_costo ? 'error' : ''}
                 step="0.01"
                 min="0"
-                placeholder="0.00"
+                max="999999999.99"
+                placeholder="Ej: 120.50"
               />
               {errors.precio_costo && (
                 <span className="error-message">{errors.precio_costo}</span>
@@ -249,7 +382,8 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
                 className={errors.precio_venta ? 'error' : ''}
                 step="0.01"
                 min="0"
-                placeholder="0.00"
+                max="999999999.99"
+                placeholder="Ej: 150.75"
               />
               {errors.precio_venta && (
                 <span className="error-message">{errors.precio_venta}</span>
@@ -267,10 +401,14 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
                 name="stock_actual"
                 value={formData.stock_actual}
                 onChange={handleChange}
-                step="0.01"
+                className={errors.stock_actual ? 'error' : ''}
+                step="0.001"
                 min="0"
-                placeholder="0"
+                placeholder="Ej: 25.750 (kg, L, unidades)"
               />
+              {errors.stock_actual && (
+                <span className="error-message">{errors.stock_actual}</span>
+              )}
             </div>
 
             <div className="form-group">
@@ -281,10 +419,14 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
                 name="stock_minimo"
                 value={formData.stock_minimo}
                 onChange={handleChange}
-                step="0.01"
+                className={errors.stock_minimo ? 'error' : ''}
+                step="0.001"
                 min="0"
-                placeholder="0"
+                placeholder="Ej: 5.000 (alerta de reposición)"
               />
+              {errors.stock_minimo && (
+                <span className="error-message">{errors.stock_minimo}</span>
+              )}
             </div>
           </div>
 
@@ -298,8 +440,12 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
                 name="proveedor_id"
                 value={formData.proveedor_id}
                 onChange={handleChange}
-                placeholder="ID del proveedor"
+                className={errors.proveedor_id ? 'error' : ''}
+                placeholder="Ej: 123 (ID del proveedor)"
               />
+              {errors.proveedor_id && (
+                <span className="error-message">{errors.proveedor_id}</span>
+              )}
             </div>
 
             <div className="form-group">
@@ -310,8 +456,13 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
                 name="ubicacion_almacen"
                 value={formData.ubicacion_almacen}
                 onChange={handleChange}
-                placeholder="Ej: Estante A-1, Nivel 2"
+                className={errors.ubicacion_almacen ? 'error' : ''}
+                placeholder="Ej: Estante A-1, Nivel 2, Sector Químicos"
+                maxLength="100"
               />
+              {errors.ubicacion_almacen && (
+                <span className="error-message">{errors.ubicacion_almacen}</span>
+              )}
             </div>
           </div>
 

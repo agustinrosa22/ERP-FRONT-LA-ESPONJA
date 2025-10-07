@@ -229,7 +229,7 @@ const Productos = () => {
       <div className="page-header">
         <div className="header-content">
           <h1>🧪 Gestión de Productos</h1>
-          <p>Catálogo de productos químicos Doble A</p>
+          <p>Catálogo de productos químicos</p>
         </div>
         <div className="header-actions">
           <button 

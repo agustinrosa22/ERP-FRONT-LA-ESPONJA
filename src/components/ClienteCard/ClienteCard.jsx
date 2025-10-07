@@ -14,6 +14,19 @@ const ClienteCard = ({ cliente, viewMode, onEdit, onViewStats }) => {
     return new Date(dateString).toLocaleDateString('es-AR')
   }
 
+  // Función para construir la dirección completa
+  const buildDireccionCompleta = (cliente) => {
+    const partes = []
+    if (cliente.calle) partes.push(cliente.calle)
+    if (cliente.numero) partes.push(cliente.numero)
+    if (cliente.piso_depto) partes.push(`Piso ${cliente.piso_depto}`)
+    if (cliente.barrio) partes.push(`- ${cliente.barrio}`)
+    if (cliente.codigo_postal) partes.push(`(CP: ${cliente.codigo_postal})`)
+    return partes.length > 0 ? partes.join(' ') : null
+  }
+
+  const direccionCompleta = cliente.direccion_completa || buildDireccionCompleta(cliente)
+
   if (viewMode === 'list') {
     return (
       <div className="cliente-card list-view">
@@ -24,9 +37,10 @@ const ClienteCard = ({ cliente, viewMode, onEdit, onViewStats }) => {
           <div className="cliente-details">
             <h3>{cliente.nombre_completo || cliente.nombre || 'Sin nombre'}</h3>
             <div className="cliente-meta">
-              <span>📄 {cliente.documento || 'Sin documento'}</span>
+              <span>📄 {cliente.tipo_documento}: {cliente.documento || 'Sin documento'}</span>
               <span>📧 {cliente.email || 'Sin email'}</span>
               <span>📱 {cliente.telefono || 'Sin teléfono'}</span>
+              {direccionCompleta && <span>📍 {direccionCompleta}</span>}
               <span>🏙️ {cliente.ciudad || 'Sin ciudad'}</span>
               <span className={`status ${cliente.activo ? 'active' : 'inactive'}`}>
                 {cliente.activo ? '✅ Activo' : '❌ Inactivo'}
@@ -96,11 +110,25 @@ const ClienteCard = ({ cliente, viewMode, onEdit, onViewStats }) => {
             <label>Teléfono:</label>
             <span>{cliente.telefono || 'No especificado'}</span>
           </div>
+
+          {direccionCompleta && (
+            <div className="info-item full-width">
+              <label>📍 Dirección:</label>
+              <span className="address">{direccionCompleta}</span>
+            </div>
+          )}
           
           <div className="info-item">
             <label>Ciudad:</label>
             <span>{cliente.ciudad || 'No especificada'}</span>
           </div>
+
+          {cliente.fecha_nacimiento && (
+            <div className="info-item">
+              <label>Fecha Nac:</label>
+              <span>{formatDate(cliente.fecha_nacimiento)}</span>
+            </div>
+          )}
           
           <div className="info-item">
             <label>Estado:</label>
@@ -116,8 +144,15 @@ const ClienteCard = ({ cliente, viewMode, onEdit, onViewStats }) => {
           
           <div className="info-item">
             <label>Crédito Disponible:</label>
-            <span className="credit available">{formatCurrency(cliente.credito_disponible)}</span>
+            <span className="credit available">{formatCurrency(cliente.credito_disponible || (cliente.limite_credito - cliente.credito_usado))}</span>
           </div>
+
+          {cliente.observaciones && (
+            <div className="info-item full-width">
+              <label>📝 Observaciones:</label>
+              <span className="observations">{cliente.observaciones}</span>
+            </div>
+          )}
         </div>
 
         <div className="cliente-dates">
