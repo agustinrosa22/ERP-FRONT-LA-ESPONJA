@@ -6,6 +6,7 @@ import contabilidadSlice from './slices/contabilidadSlice'
 import ventasSlice from './slices/ventasSlice'
 import comprasSlice from './slices/comprasSlice'
 import clientesSlice from './slices/clientesSlice'
+import productosSlice from './slices/productosSlice'
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     ventas: ventasSlice,
     compras: comprasSlice,
     clientes: clientesSlice,
+    productos: productosSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

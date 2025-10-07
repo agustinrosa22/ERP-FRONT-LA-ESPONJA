@@ -1,30 +1,6 @@
-import { useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { obtenerEstadisticasCliente } from '../../store/slices/clientesSlice'
 import './ClienteCard.css'
 
-const ClienteCard = ({ cliente, viewMode, onEdit }) => {
-  const dispatch = useDispatch()
-  const [showEstadisticas, setShowEstadisticas] = useState(false)
-  const [estadisticas, setEstadisticas] = useState(null)
-  const [loadingStats, setLoadingStats] = useState(false)
-
-  const handleVerEstadisticas = async () => {
-    if (!showEstadisticas && !estadisticas) {
-      setLoadingStats(true)
-      try {
-        const result = await dispatch(obtenerEstadisticasCliente(cliente.id))
-        if (result.payload) {
-          setEstadisticas(result.payload.estadisticas)
-        }
-      } catch (error) {
-        console.error('Error al obtener estadísticas:', error)
-      } finally {
-        setLoadingStats(false)
-      }
-    }
-    setShowEstadisticas(!showEstadisticas)
-  }
+const ClienteCard = ({ cliente, viewMode, onEdit, onViewStats }) => {
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('es-AR', {
@@ -61,10 +37,9 @@ const ClienteCard = ({ cliente, viewMode, onEdit }) => {
         <div className="cliente-actions">
           <button 
             className="btn-stats" 
-            onClick={handleVerEstadisticas}
-            disabled={loadingStats}
+            onClick={() => onViewStats && onViewStats(cliente)}
           >
-            {loadingStats ? '⏳' : '📊'} Estadísticas
+            📊 Estadísticas
           </button>
           <button className="btn-edit" onClick={() => onEdit(cliente)}>
             ✏️ Editar
@@ -83,11 +58,10 @@ const ClienteCard = ({ cliente, viewMode, onEdit }) => {
         <div className="card-actions">
           <button 
             className="btn-icon" 
-            onClick={handleVerEstadisticas}
-            disabled={loadingStats}
+            onClick={() => onViewStats && onViewStats(cliente)}
             title="Ver estadísticas"
           >
-            {loadingStats ? '⏳' : '📊'}
+            📊
           </button>
           <button 
             className="btn-icon" 
@@ -152,36 +126,6 @@ const ClienteCard = ({ cliente, viewMode, onEdit }) => {
             <small>Actualizado: {formatDate(cliente.fecha_actualizacion)}</small>
           )}
         </div>
-
-        {showEstadisticas && (
-          <div className="estadisticas-section">
-            <h4>📊 Estadísticas del Cliente</h4>
-            {loadingStats ? (
-              <div className="loading-stats">Cargando estadísticas...</div>
-            ) : estadisticas ? (
-              <div className="estadisticas-grid">
-                <div className="stat-item">
-                  <label>Total Compras:</label>
-                  <span className="stat-value">{formatCurrency(estadisticas.total_compras)}</span>
-                </div>
-                <div className="stat-item">
-                  <label>Cantidad Órdenes:</label>
-                  <span className="stat-value">{estadisticas.cantidad_ordenes || 0}</span>
-                </div>
-                <div className="stat-item">
-                  <label>Última Compra:</label>
-                  <span className="stat-value">{formatDate(estadisticas.ultima_compra)}</span>
-                </div>
-                <div className="stat-item">
-                  <label>Promedio Compra:</label>
-                  <span className="stat-value">{formatCurrency(estadisticas.promedio_compra)}</span>
-                </div>
-              </div>
-            ) : (
-              <div className="no-stats">No hay estadísticas disponibles</div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   )

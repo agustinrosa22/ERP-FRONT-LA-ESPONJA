@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { 
   obtenerTodosClientes, 
   buscarClientePorDocumento,
+  obtenerEstadisticasCliente,
   clearError,
   clearSearchResults,
   setSearchResults 
@@ -13,7 +14,7 @@ import './Clientes.css'
 
 const Clientes = () => {
   const dispatch = useDispatch()
-  const { clientes, loading, error, searchResults } = useSelector((state) => state.clientes)
+  const { clientes, loading, error, searchResults, estadisticas } = useSelector((state) => state.clientes)
   
   const [searchTerm, setSearchTerm] = useState('')
   const [searchType, setSearchType] = useState('nombre_completo') // nombre_completo, documento, email
@@ -23,6 +24,8 @@ const Clientes = () => {
   const [isSearching, setIsSearching] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [selectedClienteStats, setSelectedClienteStats] = useState(null)
+  const [showStats, setShowStats] = useState(false)
 
   // Hook para detectar mobile
   useEffect(() => {
@@ -109,6 +112,21 @@ const Clientes = () => {
   const handleEditCliente = (cliente) => {
     setSelectedCliente(cliente)
     setShowForm(true)
+  }
+
+  const handleViewStats = async (cliente) => {
+    setSelectedClienteStats(cliente)
+    setShowStats(true)
+    
+    // Cargar estadísticas si no están en caché
+    if (!estadisticas[cliente.id]) {
+      await dispatch(obtenerEstadisticasCliente(cliente.id))
+    }
+  }
+
+  const handleCloseStats = () => {
+    setShowStats(false)
+    setSelectedClienteStats(null)
   }
 
   const handleNewCliente = () => {
@@ -258,6 +276,7 @@ const Clientes = () => {
                 cliente={cliente}
                 viewMode={viewMode}
                 onEdit={handleEditCliente}
+                onViewStats={handleViewStats}
               />
             ))}
           </div>
@@ -312,6 +331,95 @@ const Clientes = () => {
               onClose={handleCloseForm}
               onSuccess={handleFormSuccess}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Modal de estadísticas */}
+      {showStats && selectedClienteStats && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="stats-modal">
+              <div className="stats-header">
+                <h2>📊 Estadísticas de Cliente</h2>
+                <button className="close-btn" onClick={handleCloseStats}>
+                  ✕
+                </button>
+              </div>
+              
+              <div className="cliente-info">
+                <h3>{selectedClienteStats.nombre_completo || `${selectedClienteStats.nombre} ${selectedClienteStats.apellido}`}</h3>
+                <p>📄 {selectedClienteStats.documento}</p>
+                <p>📧 {selectedClienteStats.email}</p>
+              </div>
+
+              {estadisticas[selectedClienteStats.id] ? (
+                <div className="stats-grid">
+                  <div className="stat-card">
+                    <div className="stat-icon">🛒</div>
+                    <div className="stat-content">
+                      <h4>Total Compras</h4>
+                      <p className="stat-value">{estadisticas[selectedClienteStats.id].total_compras}</p>
+                    </div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div className="stat-icon">💰</div>
+                    <div className="stat-content">
+                      <h4>Monto Total</h4>
+                      <p className="stat-value">${estadisticas[selectedClienteStats.id].monto_total_comprado?.toLocaleString() || '0'}</p>
+                    </div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div className="stat-icon">📊</div>
+                    <div className="stat-content">
+                      <h4>Compra Promedio</h4>
+                      <p className="stat-value">${estadisticas[selectedClienteStats.id].compra_promedio?.toLocaleString() || '0'}</p>
+                    </div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div className="stat-icon">📦</div>
+                    <div className="stat-content">
+                      <h4>Productos Comprados</h4>
+                      <p className="stat-value">{estadisticas[selectedClienteStats.id].productos_comprados}</p>
+                    </div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div className="stat-icon">💳</div>
+                    <div className="stat-content">
+                      <h4>Crédito Disponible</h4>
+                      <p className="stat-value">${estadisticas[selectedClienteStats.id].credito_disponible?.toLocaleString() || '0'}</p>
+                    </div>
+                  </div>
+
+                  <div className="stat-card">
+                    <div className="stat-icon">📈</div>
+                    <div className="stat-content">
+                      <h4>Crédito Usado</h4>
+                      <p className="stat-value">{estadisticas[selectedClienteStats.id].porcentaje_credito_usado}%</p>
+                    </div>
+                  </div>
+
+                  {estadisticas[selectedClienteStats.id].ultima_compra && (
+                    <div className="stat-card full-width">
+                      <div className="stat-icon">🕒</div>
+                      <div className="stat-content">
+                        <h4>Última Compra</h4>
+                        <p className="stat-value">{new Date(estadisticas[selectedClienteStats.id].ultima_compra).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="loading-stats">
+                  <div className="spinner"></div>
+                  <p>Cargando estadísticas...</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

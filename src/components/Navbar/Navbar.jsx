@@ -14,6 +14,7 @@ const Navbar = () => {
 
   const menuItems = [
     { path: '/dashboard', label: 'Dashboard', icon: '📊' },
+    { path: '/productos', label: 'Productos', icon: '🧪' },
     { path: '/clientes', label: 'Clientes', icon: '👥' },
     { path: '/inventario', label: 'Inventario', icon: '📦' },
     // { path: '/recursos-humanos', label: 'RRHH', icon: '���‍���' },

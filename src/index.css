@@ -37,10 +37,6 @@ code {
   overflow-x: hidden;
 }
 
-.main-content {
- 
-}
-
 /* Variables CSS para el tema del ERP */
 :root {
   --primary-color: #1976d2;

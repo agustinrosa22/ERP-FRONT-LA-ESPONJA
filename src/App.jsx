@@ -3,6 +3,7 @@ import Navbar from './components/Navbar/Navbar'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 import Login from './pages/Login/Login'
 import Dashboard from './pages/Dashboard/Dashboard'
+import Productos from './pages/Productos/Productos'
 import Clientes from './pages/Clientes/Clientes'
 import Inventario from './pages/Inventario/Inventario'
 import RecursosHumanos from './pages/RecursosHumanos/RecursosHumanos'
@@ -39,6 +40,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/productos" 
+            element={
+              <ProtectedRoute>
+                <Productos />
               </ProtectedRoute>
             } 
           />
