@@ -1,0 +1,442 @@
+.cliente-card {
+  background: var(--surface-color);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.cliente-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Grid View */
+.cliente-card.grid-view {
+  padding: 0;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 0 20px;
+}
+
+.cliente-avatar {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--primary-color), #1565c0);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.btn-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.cliente-nombre {
+  color: var(--text-primary);
+  margin: 0 0 15px 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.cliente-info-grid {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-item label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.info-item span {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.info-item .email {
+  color: var(--primary-color);
+  word-break: break-all;
+}
+
+.info-item .direccion {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.info-item .status {
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.info-item .status.active {
+  background: rgba(76, 175, 80, 0.1);
+  color: var(--success-color);
+}
+
+.info-item .status.inactive {
+  background: rgba(244, 67, 54, 0.1);
+  color: var(--error-color);
+}
+
+.info-item .credit {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.info-item .credit.available {
+  color: var(--success-color);
+}
+
+.cliente-dates {
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cliente-dates small {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.estadisticas-section {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-color);
+}
+
+.estadisticas-section h4 {
+  color: var(--text-primary);
+  margin: 0 0 15px 0;
+  font-size: 1rem;
+}
+
+.loading-stats {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 20px;
+  font-style: italic;
+}
+
+.estadisticas-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-item label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat-value {
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.no-stats {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 15px;
+}
+
+/* List View */
+.cliente-card.list-view {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cliente-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.list-view .cliente-avatar {
+  width: 45px;
+  height: 45px;
+  font-size: 1.2rem;
+}
+
+.cliente-details h3 {
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
+}
+
+.cliente-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.cliente-meta span {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.cliente-meta .status {
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.cliente-meta .status.active {
+  background: rgba(76, 175, 80, 0.1);
+  color: var(--success-color);
+}
+
+.cliente-meta .status.inactive {
+  background: rgba(244, 67, 54, 0.1);
+  color: var(--error-color);
+}
+
+.cliente-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-stats,
+.btn-edit {
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-stats:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.btn-edit:hover {
+  background: var(--warning-color);
+  color: white;
+  border-color: var(--warning-color);
+}
+
+.btn-stats:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cliente-card {
+    margin-bottom: 0;
+  }
+  
+  .card-header {
+    padding: 15px 15px 0 15px;
+  }
+  
+  .cliente-avatar {
+    width: 45px;
+    height: 45px;
+    font-size: 1.3rem;
+  }
+  
+  .btn-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 0.9rem;
+  }
+  
+  .card-body {
+    padding: 15px;
+  }
+  
+  .cliente-name {
+    font-size: 1.1rem;
+  }
+  
+  .cliente-email {
+    font-size: 0.85rem;
+  }
+  
+  .cliente-card.list-view {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 15px;
+  }
+  
+  .cliente-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+  }
+  
+  .cliente-meta {
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .status-badge,
+  .credito-info {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+  
+  .cliente-actions {
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  .btn-action {
+    flex: 1;
+    max-width: 120px;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .btn-stats {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .estadisticas-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .stat-item {
+    padding: 12px;
+  }
+  
+  .stat-value {
+    font-size: 1.3rem;
+  }
+  
+  .stat-label {
+    font-size: 0.8rem;
+  }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 480px) {
+  .card-header {
+    padding: 12px 12px 0 12px;
+  }
+  
+  .card-body {
+    padding: 12px;
+  }
+  
+  .cliente-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+  
+  .btn-icon {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .cliente-name {
+    font-size: 1rem;
+  }
+  
+  .cliente-meta {
+    gap: 8px;
+  }
+  
+  .status-badge,
+  .credito-info {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+  
+  .btn-action {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+  
+  .estadisticas-grid {
+    gap: 10px;
+  }
+  
+  .stat-item {
+    padding: 10px;
+  }
+  
+  .stat-value {
+    font-size: 1.2rem;
+  }
+}

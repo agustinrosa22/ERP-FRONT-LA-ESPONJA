@@ -7,11 +7,43 @@
 .main-content {
   flex: 1;
   padding: 20px;
-  margin-left: 250px;
   background-color: var(--background-color);
+  transition: margin-left 0.3s ease, padding-top 0.3s ease;
 }
 
 .full-content {
   flex: 1;
   background-color: var(--background-color);
+}
+
+/* Desktop layout */
+@media (min-width: 769px) {
+  .main-content {
+    margin-left: 250px;
+    padding-top: 20px;
+  }
+}
+
+/* Mobile layout */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 80px 8px 20px 8px; /* Top padding for mobile menu, optimized horizontal padding */
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+  }
+  
+  .app {
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    width: 100%;
+    max-width: 100vw;
+  }
+}
+
+/* Extra small mobile (iPhone, etc.) */
+@media (max-width: 400px) {
+  .main-content {
+    padding: 75px 5px 15px 5px;
+  }
 }
