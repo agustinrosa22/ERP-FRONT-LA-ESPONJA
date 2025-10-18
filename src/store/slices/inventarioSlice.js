@@ -7,7 +7,6 @@ export const obtenerProductos = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await inventarioService.obtenerProductos()
-      console.log('🔧 Procesando respuesta de productos:', response.data)
       
       // Manejar la estructura específica del backend  
       if (response.data?.success) {
@@ -15,20 +14,15 @@ export const obtenerProductos = createAsyncThunk(
         
         // Para productos: probablemente data.productos (siguiendo el patrón)
         if (data?.productos && Array.isArray(data.productos)) {
-          console.log('📦 Extrayendo data.productos:', data.productos)
-          console.log('📊 Total de productos:', data.productos.length)
           return data.productos
         }
         
         // Si data es directamente un array
         if (Array.isArray(data)) {
-          console.log('📋 Data es array directo:', data)
           return data
         }
         
         // Fallback: devolver array vacío
-        console.log('⚠️ Estructura no reconocida para productos, devolviendo array vacío')
-        console.log('🔍 Data recibida:', data)
         return []
       }
       
@@ -81,7 +75,7 @@ export const obtenerMovimientos = createAsyncThunk(
   async (filtros = {}, { rejectWithValue }) => {
     try {
       const response = await inventarioService.obtenerMovimientos(filtros)
-      console.log('🔧 Procesando respuesta de movimientos:', response.data)
+
       
       // Manejar la estructura específica del backend
       if (response.data?.success) {
@@ -89,20 +83,18 @@ export const obtenerMovimientos = createAsyncThunk(
         
         // Para movimientos: data.movimientos (estructura confirmada)
         if (data?.movimientos && Array.isArray(data.movimientos)) {
-          console.log('� Extrayendo data.movimientos:', data.movimientos)
-          console.log('� Total de movimientos:', data.movimientos.length)
+
           return data.movimientos
         }
         
         // Si data es directamente un array
         if (Array.isArray(data)) {
-          console.log('� Data es array directo:', data)
+
           return data
         }
         
         // Fallback: devolver array vacío
-        console.log('⚠️ Estructura no reconocida, devolviendo array vacío')
-        console.log('🔍 Data recibida:', data)
+
         return []
       }
       
@@ -263,13 +255,13 @@ const inventarioSlice = createSlice({
       })
       .addCase(obtenerProductos.fulfilled, (state, action) => {
         state.loading = false
-        console.log('🔧 Reducer recibió productos:', action.payload)
+
         
         // El thunk ya procesó la respuesta y devolvió el array correcto
         const productos = Array.isArray(action.payload) ? action.payload : []
         state.productos = productos
         
-        console.log('📦 Productos guardados en estado:', state.productos)
+
       })
       .addCase(obtenerProductos.rejected, (state, action) => {
         state.loading = false
@@ -306,14 +298,13 @@ const inventarioSlice = createSlice({
       })
       .addCase(obtenerMovimientos.fulfilled, (state, action) => {
         state.loadingMovimientos = false
-        console.log('🔧 Reducer recibió movimientos:', action.payload)
+
         
         // El thunk ya procesó la respuesta y devolvió el array correcto
         const movimientos = Array.isArray(action.payload) ? action.payload : []
         state.movimientos = movimientos
         
-        console.log('📊 Movimientos guardados en estado:', state.movimientos)
-        console.log('📄 Total de movimientos en estado:', state.movimientos.length)
+
       })
       .addCase(obtenerMovimientos.rejected, (state, action) => {
         state.loadingMovimientos = false
