@@ -119,9 +119,9 @@ export const obtenerEstadisticasProveedor = createAsyncThunk(
 // Cambiar estado del proveedor
 export const cambiarEstadoProveedor = createAsyncThunk(
   'proveedores/cambiarEstadoProveedor',
-  async ({ id, activo }, { rejectWithValue }) => {
+  async ({ id, proveedorData }, { rejectWithValue }) => {
     try {
-      const response = await proveedorService.cambiarEstadoProveedor(id, activo)
+      const response = await proveedorService.cambiarEstado(id, proveedorData)
       return response
     } catch (error) {
       return rejectWithValue(error)

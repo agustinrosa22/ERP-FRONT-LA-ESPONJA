@@ -28,7 +28,7 @@ const Productos = () => {
     categorias = []
   } = productosState
 
-  console.log('Estado de productos:', { productos, productosStockBajo, loading, error })
+
 
   const [searchTerm, setSearchTerm] = useState('')
   const [searchType, setSearchType] = useState('nombre') // nombre, codigo, categoria
@@ -63,7 +63,7 @@ const Productos = () => {
         await dispatch(obtenerTodosProductos())
         await dispatch(obtenerProductosStockBajo())
       } catch (error) {
-        console.log('Backend no disponible:', error)
+
         // No hacer nada, el error se maneja en el slice
       }
     }

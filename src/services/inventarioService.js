@@ -3,21 +3,10 @@ import api from './api'
 const inventarioService = {
   // ========== PRODUCTOS ==========
   obtenerProductos: async () => {
-    console.log('📋 Obteniendo productos...')
     try {
       const response = await api.get('/productos')
-      console.log('✅ Productos obtenidos:', response.data)
-      console.log('🔍 Estructura de data:', response.data.data)
-      
-      // Verificar si tiene productos anidados
-      if (response.data.data?.productos) {
-        console.log('📦 Encontrado data.productos:', response.data.data.productos)
-        console.log('📏 Longitud de productos:', response.data.data.productos.length)
-      }
-      
       return response
     } catch (error) {
-      console.error('❌ Error al obtener productos:', error.response?.status, error.response?.data)
       throw error
     }
   },
@@ -44,8 +33,6 @@ const inventarioService = {
 
   // ========== MOVIMIENTOS DE INVENTARIO ==========
   obtenerMovimientos: async (filtros = {}) => {
-    console.log('🔍 Obteniendo movimientos con filtros:', filtros)
-    
     const params = new URLSearchParams()
     
     if (filtros.fechaInicio) params.append('fecha_inicio', filtros.fechaInicio)
@@ -56,30 +43,10 @@ const inventarioService = {
     const queryString = params.toString()
     const url = queryString ? `/inventario?${queryString}` : '/inventario'
     
-    console.log('📡 URL final:', url)
-    
     try {
       const response = await api.get(url)
-      console.log('✅ Movimientos obtenidos:', response.data)
-      console.log('🔍 Estructura de data:', response.data.data)
-      console.log('🔢 Tipo de data:', typeof response.data.data, Array.isArray(response.data.data))
-      
-      // Verificar si tiene productos anidados
-      if (response.data.data?.productos) {
-        console.log('📦 Encontrado data.productos:', response.data.data.productos)
-        console.log('📏 Longitud de productos:', response.data.data.productos.length)
-      }
-      
-      // Verificar si tiene movimientos anidados (estructura confirmada del backend)
-      if (response.data.data?.movimientos) {
-        console.log('🔄 Encontrado data.movimientos:', response.data.data.movimientos)
-        console.log('📏 Longitud de movimientos:', response.data.data.movimientos.length)
-        console.log('📄 Paginación:', response.data.data.pagination)
-      }
-      
       return response
     } catch (error) {
-      console.error('❌ Error al obtener movimientos:', error.response?.status, error.response?.data)
       throw error
     }
   },
@@ -89,8 +56,6 @@ const inventarioService = {
   },
 
   crearMovimiento: async (movimiento) => {
-    console.log('📦 Creando movimiento:', movimiento)
-    
     const dataToSend = {
       tipo: movimiento.tipo,
       cantidad: parseInt(movimiento.cantidad),
@@ -99,15 +64,10 @@ const inventarioService = {
       observaciones: movimiento.observaciones || null
     }
     
-    console.log('📤 Datos a enviar:', dataToSend)
-    console.log('🎯 Endpoint:', `/productos/${movimiento.producto_id}/ajustar-stock`)
-    
     try {
       const response = await api.post(`/productos/${movimiento.producto_id}/ajustar-stock`, dataToSend)
-      console.log('✅ Respuesta del ajuste de stock:', response.data)
       return response
     } catch (error) {
-      console.error('❌ Error al ajustar stock:', error.response?.status, error.response?.data)
       throw error
     }
   },

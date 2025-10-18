@@ -4,7 +4,7 @@ import { crearProducto, actualizarProducto } from '../../store/slices/productosS
 import './ProductoForm.css'
 
 const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
-  console.log('ProductoForm renderizando con props:', { producto, onClose, onSubmit })
+
   
   const dispatch = useDispatch()
   

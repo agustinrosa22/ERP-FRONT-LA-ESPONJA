@@ -23,9 +23,7 @@ const Inventario = () => {
     filtrosMovimientos 
   } = inventarioState
   
-  // Log del estado completo para debugging
-  console.log('🔍 Estado completo del inventario:', inventarioState)
-  console.log('📊 Movimientos en estado:', movimientos)
+
 
   // Estados locales
   const [vistaActiva, setVistaActiva] = useState('movimientos') // movimientos, alertas, productos
@@ -39,46 +37,7 @@ const Inventario = () => {
     dispatch(obtenerMovimientos())
     
     // Prueba directa del endpoint
-    const probarEndpoints = async () => {
-      try {
-        console.log('🧪 Probando endpoints directamente...')
-        
-        // Probar endpoint de movimientos
-        const response = await fetch('http://localhost:8888/api/inventario', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        })
-        
-        console.log('🔍 Status /api/inventario:', response.status)
-        
-        if (response.ok) {
-          const data = await response.json()
-          console.log('📊 Datos de /api/inventario:', data)
-        } else {
-          console.error('❌ Error en /api/inventario:', await response.text())
-        }
-        
-        // Probar endpoint de productos  
-        const prodResponse = await fetch('/api/productos', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        })
-        
-        console.log('🔍 Status /api/productos:', prodResponse.status)
-        
-        if (prodResponse.ok) {
-          const prodData = await prodResponse.json()
-          console.log('📦 Datos de /api/productos:', prodData)
-        }
-        
-      } catch (error) {
-        console.error('❌ Error en prueba directa:', error)
-      }
-    }
-    
-    probarEndpoints()
+
   }, [dispatch])
 
   const handleFiltroChange = (campo, valor) => {
@@ -202,7 +161,7 @@ const Inventario = () => {
           </div>
         ) : movimientos.length > 0 ? (
           movimientos.map(movimiento => {
-            console.log('🎬 Renderizando movimiento:', movimiento)
+
             return (
               <MovimientoCard
                 key={movimiento.id}
