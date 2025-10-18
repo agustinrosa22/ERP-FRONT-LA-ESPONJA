@@ -7,7 +7,11 @@ export const obtenerTodosProductos = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await productosService.obtenerTodos()
-      return response.data
+      // Manejar diferentes estructuras de respuesta del backend
+      if (response.data?.success) {
+        return response.data.data || []
+      }
+      return Array.isArray(response.data) ? response.data : []
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Error al obtener productos')
     }
@@ -19,6 +23,10 @@ export const obtenerProductoPorId = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await productosService.obtenerPorId(id)
+      // Manejar diferentes estructuras de respuesta del backend
+      if (response.data?.success) {
+        return response.data.data
+      }
       return response.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Error al obtener producto')
@@ -30,20 +38,14 @@ export const crearProducto = createAsyncThunk(
   'productos/crear',
   async (producto, { rejectWithValue }) => {
     try {
-      // Simular creación local sin backend
-      const nuevoProducto = {
-        id: Date.now(), // ID temporal usando timestamp
-        ...producto,
-        fecha_creacion: new Date().toISOString(),
-        fecha_actualizacion: new Date().toISOString()
+      const response = await productosService.crear(producto)
+      // Manejar diferentes estructuras de respuesta del backend
+      if (response.data?.success) {
+        return response.data.data
       }
-      
-      // Simular delay de red
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      return nuevoProducto
+      return response.data
     } catch (error) {
-      return rejectWithValue('Error al crear producto localmente')
+      return rejectWithValue(error.response?.data?.message || 'Error al crear producto')
     }
   }
 )
@@ -52,19 +54,14 @@ export const actualizarProducto = createAsyncThunk(
   'productos/actualizar',
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      // Simular actualización local sin backend
-      const productoActualizado = {
-        id,
-        ...data,
-        fecha_actualizacion: new Date().toISOString()
+      const response = await productosService.actualizar(id, data)
+      // Manejar diferentes estructuras de respuesta del backend
+      if (response.data?.success) {
+        return response.data.data
       }
-      
-      // Simular delay de red
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      return productoActualizado
+      return response.data
     } catch (error) {
-      return rejectWithValue('Error al actualizar producto localmente')
+      return rejectWithValue(error.response?.data?.message || 'Error al actualizar producto')
     }
   }
 )
@@ -73,11 +70,10 @@ export const eliminarProducto = createAsyncThunk(
   'productos/eliminar',
   async (id, { rejectWithValue }) => {
     try {
-      // Simular eliminación local sin backend
-      await new Promise(resolve => setTimeout(resolve, 300))
+      await productosService.eliminar(id)
       return id
     } catch (error) {
-      return rejectWithValue('Error al eliminar producto localmente')
+      return rejectWithValue(error.response?.data?.message || 'Error al eliminar producto')
     }
   }
 )
@@ -87,6 +83,10 @@ export const buscarProductoPorCodigo = createAsyncThunk(
   async (codigo, { rejectWithValue }) => {
     try {
       const response = await productosService.buscarPorCodigo(codigo)
+      // Manejar diferentes estructuras de respuesta del backend
+      if (response.data?.success) {
+        return response.data.data
+      }
       return response.data
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Error al buscar producto')
@@ -99,7 +99,11 @@ export const obtenerProductosStockBajo = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await productosService.obtenerStockBajo()
-      return response.data
+      // Manejar diferentes estructuras de respuesta del backend
+      if (response.data?.success) {
+        return Array.isArray(response.data.data) ? response.data.data : []
+      }
+      return Array.isArray(response.data) ? response.data : []
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Error al obtener productos con stock bajo')
     }
@@ -168,7 +172,8 @@ const productosSlice = createSlice({
       })
       .addCase(obtenerTodosProductos.fulfilled, (state, action) => {
         state.loading = false
-        state.productos = action.payload
+        // Asegurarse de que siempre sea un array
+        state.productos = Array.isArray(action.payload) ? action.payload : (action.payload?.productos || [])
       })
       .addCase(obtenerTodosProductos.rejected, (state, action) => {
         state.loading = false
@@ -196,6 +201,10 @@ const productosSlice = createSlice({
       })
       .addCase(crearProducto.fulfilled, (state, action) => {
         state.loading = false
+        // Asegurar que productos sea un array antes de hacer push
+        if (!Array.isArray(state.productos)) {
+          state.productos = []
+        }
         state.productos.push(action.payload)
       })
       .addCase(crearProducto.rejected, (state, action) => {
@@ -210,6 +219,10 @@ const productosSlice = createSlice({
       })
       .addCase(actualizarProducto.fulfilled, (state, action) => {
         state.loading = false
+        // Asegurar que productos sea un array antes de buscar
+        if (!Array.isArray(state.productos)) {
+          state.productos = []
+        }
         const index = state.productos.findIndex(p => p.id === action.payload.id)
         if (index !== -1) {
           state.productos[index] = action.payload
@@ -228,6 +241,10 @@ const productosSlice = createSlice({
       })
       .addCase(eliminarProducto.fulfilled, (state, action) => {
         state.loading = false
+        // Asegurar que productos sea un array antes de filtrar
+        if (!Array.isArray(state.productos)) {
+          state.productos = []
+        }
         state.productos = state.productos.filter(p => p.id !== action.payload)
       })
       .addCase(eliminarProducto.rejected, (state, action) => {
@@ -245,7 +262,8 @@ const productosSlice = createSlice({
 
       // Productos con stock bajo
       .addCase(obtenerProductosStockBajo.fulfilled, (state, action) => {
-        state.productosStockBajo = action.payload
+        // Asegurar que siempre sea un array
+        state.productosStockBajo = Array.isArray(action.payload) ? action.payload : []
       })
       .addCase(obtenerProductosStockBajo.rejected, (state, action) => {
         state.error = action.payload

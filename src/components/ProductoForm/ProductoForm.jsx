@@ -13,12 +13,11 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
     nombre: '',
     categoria: '',
     descripcion: '',
-    precio_venta: '',
-    precio_costo: '',
-    stock_actual: '',
+    precio: '', // Cambiado de precio_venta a precio (como espera el backend)
+    costo: '', // Cambiado de precio_costo a costo (como espera el backend)
+    stock: '', // Cambiado de stock_actual a stock (como espera el backend)
     stock_minimo: '',
-    proveedor_id: '',
-    ubicacion_almacen: '',
+    unidad_medida: 'unidades', // Campo que faltaba - requerido por el backend
     activo: true
   })
 
@@ -47,12 +46,11 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
         nombre: producto.nombre || '',
         categoria: producto.categoria || '',
         descripcion: producto.descripcion || '',
-        precio_venta: producto.precio_venta || '',
-        precio_costo: producto.precio_costo || '',
-        stock_actual: producto.stock_actual || '',
+        precio: producto.precio || '', // Actualizado para coincidir con el backend
+        costo: producto.costo || '', // Actualizado para coincidir con el backend
+        stock: producto.stock || '', // Actualizado para coincidir con el backend
         stock_minimo: producto.stock_minimo || '',
-        proveedor_id: producto.proveedor_id || '',
-        ubicacion_almacen: producto.ubicacion_almacen || '',
+        unidad_medida: producto.unidad_medida || 'unidades', // Campo agregado
         activo: producto.activo ?? true
       })
     }
@@ -87,8 +85,8 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
           }
           break
           
-        case 'precio_venta':
-        case 'precio_costo':
+        case 'precio':
+        case 'costo':
           if (value && !regexPatterns.precio.test(value)) {
             fieldErrors[name] = 'Ingrese un precio válido (máximo 2 decimales). Ej: 150.50'
           } else if (value && parseFloat(value) <= 0) {
@@ -96,7 +94,7 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
           }
           break
           
-        case 'stock_actual':
+        case 'stock':
         case 'stock_minimo':
           if (value && !regexPatterns.stock.test(value)) {
             fieldErrors[name] = 'Ingrese una cantidad válida (máximo 3 decimales). Ej: 25.750'
@@ -146,40 +144,40 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
       newErrors.descripcion = 'La descripción contiene caracteres no válidos (máximo 1000 caracteres)'
     }
 
-    // Validar precio de venta (obligatorio)
-    if (!formData.precio_venta) {
-      newErrors.precio_venta = 'El precio de venta es requerido'
-    } else if (!regexPatterns.precio.test(formData.precio_venta)) {
-      newErrors.precio_venta = 'Ingrese un precio válido (máximo 2 decimales). Ej: 150.50'
-    } else if (parseFloat(formData.precio_venta) <= 0) {
-      newErrors.precio_venta = 'El precio de venta debe ser mayor a 0'
-    } else if (parseFloat(formData.precio_venta) > 999999999.99) {
-      newErrors.precio_venta = 'El precio de venta es demasiado alto (máximo: $999,999,999.99)'
+    // Validar precio (obligatorio)
+    if (!formData.precio) {
+      newErrors.precio = 'El precio es requerido'
+    } else if (!regexPatterns.precio.test(formData.precio)) {
+      newErrors.precio = 'Ingrese un precio válido (máximo 2 decimales). Ej: 150.50'
+    } else if (parseFloat(formData.precio) <= 0) {
+      newErrors.precio = 'El precio debe ser mayor a 0'
+    } else if (parseFloat(formData.precio) > 999999999.99) {
+      newErrors.precio = 'El precio es demasiado alto (máximo: $999,999,999.99)'
     }
 
-    // Validar precio de costo (obligatorio)
-    if (!formData.precio_costo) {
-      newErrors.precio_costo = 'El precio de costo es requerido'
-    } else if (!regexPatterns.precio.test(formData.precio_costo)) {
-      newErrors.precio_costo = 'Ingrese un precio válido (máximo 2 decimales). Ej: 120.25'
-    } else if (parseFloat(formData.precio_costo) <= 0) {
-      newErrors.precio_costo = 'El precio de costo debe ser mayor a 0'
-    } else if (parseFloat(formData.precio_costo) > 999999999.99) {
-      newErrors.precio_costo = 'El precio de costo es demasiado alto (máximo: $999,999,999.99)'
+    // Validar costo (obligatorio)
+    if (!formData.costo) {
+      newErrors.costo = 'El costo es requerido'
+    } else if (!regexPatterns.precio.test(formData.costo)) {
+      newErrors.costo = 'Ingrese un costo válido (máximo 2 decimales). Ej: 120.25'
+    } else if (parseFloat(formData.costo) <= 0) {
+      newErrors.costo = 'El costo debe ser mayor a 0'
+    } else if (parseFloat(formData.costo) > 999999999.99) {
+      newErrors.costo = 'El costo es demasiado alto (máximo: $999,999,999.99)'
     }
 
-    // Validar que precio de venta sea mayor al precio de costo
-    if (formData.precio_venta && formData.precio_costo && 
-        parseFloat(formData.precio_venta) <= parseFloat(formData.precio_costo)) {
-      newErrors.precio_venta = 'El precio de venta debe ser mayor al precio de costo'
+    // Validar que precio sea mayor al costo
+    if (formData.precio && formData.costo && 
+        parseFloat(formData.precio) <= parseFloat(formData.costo)) {
+      newErrors.precio = 'El precio debe ser mayor al costo'
     }
 
-    // Validar stock actual (opcional)
-    if (formData.stock_actual && formData.stock_actual.trim()) {
-      if (!regexPatterns.stock.test(formData.stock_actual)) {
-        newErrors.stock_actual = 'Ingrese una cantidad válida (máximo 3 decimales). Ej: 25.750'
-      } else if (parseFloat(formData.stock_actual) < 0) {
-        newErrors.stock_actual = 'El stock actual no puede ser negativo'
+    // Validar stock (opcional)
+    if (formData.stock && formData.stock.trim()) {
+      if (!regexPatterns.stock.test(formData.stock)) {
+        newErrors.stock = 'Ingrese una cantidad válida (máximo 3 decimales). Ej: 25.750'
+      } else if (parseFloat(formData.stock) < 0) {
+        newErrors.stock = 'El stock no puede ser negativo'
       }
     }
 
@@ -192,10 +190,15 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
       }
     }
 
-    // Validar que stock mínimo no sea mayor al stock actual (si ambos están presentes)
-    if (formData.stock_actual && formData.stock_minimo && 
-        parseFloat(formData.stock_minimo) > parseFloat(formData.stock_actual)) {
-      newErrors.stock_minimo = 'El stock mínimo no puede ser mayor al stock actual'
+    // Validar que stock mínimo no sea mayor al stock inicial (si ambos están presentes)
+    if (formData.stock && formData.stock_minimo && 
+        parseFloat(formData.stock_minimo) > parseFloat(formData.stock)) {
+      newErrors.stock_minimo = 'El stock mínimo no puede ser mayor al stock inicial'
+    }
+
+    // Validar unidad de medida (obligatorio)
+    if (!formData.unidad_medida || !formData.unidad_medida.trim()) {
+      newErrors.unidad_medida = 'La unidad de medida es requerida'
     }
 
     // Validar proveedor ID (opcional)
@@ -227,9 +230,9 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
     try {
       const dataToSubmit = {
         ...formData,
-        precio_venta: parseFloat(formData.precio_venta),
-        precio_costo: parseFloat(formData.precio_costo),
-        stock_actual: formData.stock_actual ? parseFloat(formData.stock_actual) : 0,
+        precio: parseFloat(formData.precio),
+        costo: parseFloat(formData.costo),
+        stock: formData.stock ? parseFloat(formData.stock) : 0,
         stock_minimo: formData.stock_minimo ? parseFloat(formData.stock_minimo) : 0,
         proveedor_id: formData.proveedor_id ? parseInt(formData.proveedor_id) : null
       }
@@ -353,40 +356,40 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
           {/* Precios */}
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="precio_costo">Precio Costo * ($)</label>
+              <label htmlFor="costo">Precio Costo * ($)</label>
               <input
                 type="number"
-                id="precio_costo"
-                name="precio_costo"
-                value={formData.precio_costo}
+                id="costo"
+                name="costo"
+                value={formData.costo}
                 onChange={handleChange}
-                className={errors.precio_costo ? 'error' : ''}
+                className={errors.costo ? 'error' : ''}
                 step="0.01"
                 min="0"
                 max="999999999.99"
                 placeholder="Ej: 120.50"
               />
-              {errors.precio_costo && (
-                <span className="error-message">{errors.precio_costo}</span>
+              {errors.costo && (
+                <span className="error-message">{errors.costo}</span>
               )}
             </div>
 
             <div className="form-group">
-              <label htmlFor="precio_venta">Precio Venta * ($)</label>
+              <label htmlFor="precio">Precio Venta * ($)</label>
               <input
                 type="number"
-                id="precio_venta"
-                name="precio_venta"
-                value={formData.precio_venta}
+                id="precio"
+                name="precio"
+                value={formData.precio}
                 onChange={handleChange}
-                className={errors.precio_venta ? 'error' : ''}
+                className={errors.precio ? 'error' : ''}
                 step="0.01"
                 min="0"
                 max="999999999.99"
                 placeholder="Ej: 150.75"
               />
-              {errors.precio_venta && (
-                <span className="error-message">{errors.precio_venta}</span>
+              {errors.precio && (
+                <span className="error-message">{errors.precio}</span>
               )}
             </div>
           </div>
@@ -394,20 +397,20 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
           {/* Stock */}
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="stock_actual">Stock Actual</label>
+              <label htmlFor="stock">Stock Actual</label>
               <input
                 type="number"
-                id="stock_actual"
-                name="stock_actual"
-                value={formData.stock_actual}
+                id="stock"
+                name="stock"
+                value={formData.stock}
                 onChange={handleChange}
-                className={errors.stock_actual ? 'error' : ''}
+                className={errors.stock ? 'error' : ''}
                 step="0.001"
                 min="0"
                 placeholder="Ej: 25.750 (kg, L, unidades)"
               />
-              {errors.stock_actual && (
-                <span className="error-message">{errors.stock_actual}</span>
+              {errors.stock && (
+                <span className="error-message">{errors.stock}</span>
               )}
             </div>
 
@@ -426,6 +429,30 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
               />
               {errors.stock_minimo && (
                 <span className="error-message">{errors.stock_minimo}</span>
+              )}
+            </div>
+          </div>
+
+          {/* Unidad de Medida */}
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="unidad_medida">Unidad de Medida *</label>
+              <select
+                id="unidad_medida"
+                name="unidad_medida"
+                value={formData.unidad_medida}
+                onChange={handleChange}
+                className={errors.unidad_medida ? 'error' : ''}
+              >
+                <option value="">Seleccionar unidad</option>
+                <option value="unidades">Unidades</option>
+                <option value="kg">Kilogramos (kg)</option>
+                <option value="gramos">Gramos (g)</option>
+                <option value="litros">Litros (L)</option>
+                <option value="metros">Metros (m)</option>
+              </select>
+              {errors.unidad_medida && (
+                <span className="error-message">{errors.unidad_medida}</span>
               )}
             </div>
           </div>
