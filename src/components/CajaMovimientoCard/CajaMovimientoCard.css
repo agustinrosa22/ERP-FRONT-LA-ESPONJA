@@ -1,0 +1,260 @@
+/* CajaMovimientoCard.css */
+.caja-movimiento-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  border-left: 4px solid;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 15px;
+}
+
+.caja-movimiento-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.caja-movimiento-card.ingreso {
+  border-left-color: #28a745;
+  background: linear-gradient(135deg, rgba(40, 167, 69, 0.02), white);
+}
+
+.caja-movimiento-card.egreso {
+  border-left-color: #dc3545;
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.02), white);
+}
+
+.movimiento-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.movimiento-tipo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tipo-icon {
+  font-size: 1.5rem;
+}
+
+.tipo-text {
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+}
+
+.movimiento-monto {
+  display: flex;
+  align-items: center;
+}
+
+.monto {
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.monto.ingreso {
+  color: #28a745;
+  background: rgba(40, 167, 69, 0.1);
+}
+
+.monto.egreso {
+  color: #dc3545;
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.movimiento-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-item.observaciones {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.info-item.referencia {
+  background: rgba(0, 123, 255, 0.05);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 123, 255, 0.1);
+  border-bottom: 1px solid rgba(0, 123, 255, 0.1);
+}
+
+.label {
+  font-weight: 600;
+  color: #6c757d;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 120px;
+}
+
+.value {
+  color: #495057;
+  font-weight: 500;
+  text-align: right;
+  flex: 1;
+  word-break: break-word;
+}
+
+.value.categoria {
+  background: #e9ecef;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.value.estado {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.estado.pendiente {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.estado.confirmado {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.estado.completado {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.estado.cancelado {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.movimiento-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 15px;
+  border-top: 2px solid #f8f9fa;
+}
+
+.btn-edit, .btn-delete {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-edit {
+  background: #007bff;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .caja-movimiento-card {
+    padding: 15px;
+  }
+
+  .movimiento-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .monto {
+    font-size: 1.3rem;
+    text-align: center;
+  }
+
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .label {
+    min-width: auto;
+  }
+
+  .value {
+    text-align: left;
+  }
+
+  .movimiento-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .tipo-text {
+    font-size: 0.8rem;
+  }
+
+  .monto {
+    font-size: 1.2rem;
+    padding: 6px 12px;
+  }
+
+  .btn-edit, .btn-delete {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+}

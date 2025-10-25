@@ -8,6 +8,7 @@ import comprasSlice from './slices/comprasSlice'
 import proveedoresSlice from './slices/proveedoresSlice'
 import clientesSlice from './slices/clientesSlice'
 import productosSlice from './slices/productosSlice'
+import dashboardSlice from './slices/dashboardSlice'
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     proveedores: proveedoresSlice,
     clientes: clientesSlice,
     productos: productosSlice,
+    dashboard: dashboardSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

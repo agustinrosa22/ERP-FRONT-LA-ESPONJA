@@ -185,7 +185,7 @@ const Ventas = () => {
                   <div className="stat-icon">📦</div>
                   <div className="stat-info">
                     <span className="stat-number">
-                      {producto.total_vendido} uds
+                      {producto.total_vendido} ARG
                     </span>
                     <span className="stat-label">{producto.producto?.nombre || 'Producto'}</span>
                     <small style={{ color: '#28a745', fontSize: '0.8rem' }}>

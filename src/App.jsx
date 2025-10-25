@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { Suspense } from 'react'
 import Navbar from './components/Navbar/Navbar'
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 import Login from './pages/Login/Login'
@@ -22,9 +23,19 @@ function App() {
       {isAuthenticated && <Navbar />}
       <main className={isAuthenticated ? "main-content" : "full-content"}>
         <Routes>
-          {/* Ruta de login */}
           <Route 
             path="/" 
+            element={
+              isAuthenticated ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          
+          <Route 
+            path="/login" 
             element={
               isAuthenticated ? (
                 <Navigate to="/dashboard" replace />
@@ -34,7 +45,6 @@ function App() {
             } 
           />
           
-          {/* Rutas protegidas */}
           <Route 
             path="/dashboard" 
             element={
@@ -43,6 +53,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          
           <Route 
             path="/productos" 
             element={
@@ -51,6 +62,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          
           <Route 
             path="/clientes" 
             element={
@@ -59,6 +71,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          
           <Route 
             path="/inventario" 
             element={
@@ -67,6 +80,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          
           <Route 
             path="/recursos-humanos" 
             element={
@@ -75,6 +89,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          
           <Route 
             path="/contabilidad" 
             element={
@@ -83,6 +98,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          
           <Route 
             path="/ventas" 
             element={
@@ -91,6 +107,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          
           <Route 
             path="/compras" 
             element={
@@ -99,6 +116,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          
           <Route 
             path="/reportes" 
             element={
@@ -107,12 +125,15 @@ function App() {
               </ProtectedRoute>
             } 
           />
-
-          {/* Ruta 404 - redirigir según autenticación */}
+          
           <Route 
             path="*" 
             element={
-              <Navigate to={isAuthenticated ? "/dashboard" : "/"} replace />
+              isAuthenticated ? (
+                <Navigate to="/dashboard" replace />
+              ) : (
+                <Navigate to="/login" replace />
+              )
             } 
           />
         </Routes>
