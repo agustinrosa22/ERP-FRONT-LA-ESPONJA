@@ -11,13 +11,21 @@ const api = axios.create({
   timeout: 15000, // 15 segundos de timeout
 })
 
-// Interceptor para agregar token de autenticación
+// Interceptor para agregar token de autenticación y cabecera de sucursal (si corresponde)
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+
+    // Si el Admin seleccionó una sucursal, la enviamos (solo si el rol es admin)
+    const usuarioRol = localStorage.getItem('usuarioRol')
+    const selectedSucursalId = localStorage.getItem('selectedSucursalId')
+    if (usuarioRol === 'admin' && selectedSucursalId) {
+      config.headers['X-Sucursal-Id'] = selectedSucursalId
+    }
+
     return config
   },
   (error) => {
@@ -31,6 +39,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
+      // Limpiar selección de sucursal al expirar sesión
+      localStorage.removeItem('selectedSucursalId')
       window.location.href = '/login'
     }
     return Promise.reject(error)

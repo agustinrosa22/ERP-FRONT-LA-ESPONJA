@@ -53,12 +53,21 @@ const authSlice = createSlice({
       state.token = token
       state.isAuthenticated = true
       localStorage.setItem('token', token)
+      try {
+        if (usuario?.rol) localStorage.setItem('usuarioRol', usuario.rol)
+        if (usuario?.sucursal_id !== undefined && usuario?.sucursal_id !== null) {
+          localStorage.setItem('usuarioSucursalId', String(usuario.sucursal_id))
+        }
+      } catch {}
     },
     clearCredentials: (state) => {
       state.usuario = null
       state.token = null
       state.isAuthenticated = false
       localStorage.removeItem('token')
+      localStorage.removeItem('usuarioRol')
+      localStorage.removeItem('usuarioSucursalId')
+      localStorage.removeItem('selectedSucursalId')
     }
   },
   extraReducers: (builder) => {
@@ -74,6 +83,15 @@ const authSlice = createSlice({
         state.token = action.payload.token
         state.isAuthenticated = true
         localStorage.setItem('token', action.payload.token)
+        // Persistir rol y sucursal del usuario para lógica de multi-sucursal en interceptores
+        try {
+          if (action.payload?.usuario?.rol) {
+            localStorage.setItem('usuarioRol', action.payload.usuario.rol)
+          }
+          if (action.payload?.usuario?.sucursal_id !== undefined && action.payload?.usuario?.sucursal_id !== null) {
+            localStorage.setItem('usuarioSucursalId', String(action.payload.usuario.sucursal_id))
+          }
+        } catch {}
       })
       .addCase(loginUsuario.rejected, (state, action) => {
         state.loading = false
@@ -85,6 +103,9 @@ const authSlice = createSlice({
         state.token = null
         state.isAuthenticated = false
         localStorage.removeItem('token')
+        localStorage.removeItem('usuarioRol')
+        localStorage.removeItem('usuarioSucursalId')
+        localStorage.removeItem('selectedSucursalId')
       })
   }
 })

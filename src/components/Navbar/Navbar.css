@@ -25,11 +25,37 @@
   margin: 0;
 }
 
+.navbar-context {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
 .navbar-menu {
   flex: 1;
   list-style: none;
   padding: 20px 0;
   margin: 0;
+  /* Permitir scroll cuando el contenido supera la altura disponible */
+  overflow-y: auto;
+  min-height: 0; /* Necesario en flexbox para que el overflow funcione */
+  -webkit-overflow-scrolling: touch; /* Scroll suave en móviles */
+  overscroll-behavior: contain;
+}
+
+/* Estilos del scrollbar (opcionales, sutiles) */
+.navbar-menu::-webkit-scrollbar {
+  width: 8px;
+}
+.navbar-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+.navbar-menu::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+}
+.navbar-menu::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
 }
 
 .navbar-item {
@@ -71,6 +97,27 @@
 .navbar-footer {
   padding: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sucursal-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.sucursal-selector label {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.sucursal-selector select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.15);
+  color: #fff;
 }
 
 .user-info {

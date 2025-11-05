@@ -1,10 +1,10 @@
 # Frontend ERP La Esponja
 
-Sistema de gestión empresarial (ERP) desarrollado con React y Redux para La Esponja.
+Sistema de gestión empresarial (ERP) desarrollado con React y Redux para La Esponja, con soporte multi-sucursal end-to-end.
 
 ## 🚀 Tecnologías Utilizadas
 
-- **Frontend Framework**: React 19
+- **Frontend Framework**: React
 - **Gestión de Estado**: Redux Toolkit
 - **Enrutamiento**: React Router DOM
 - **Build Tool**: Vite
@@ -55,7 +55,7 @@ src/
 1. Clona el repositorio:
    ```bash
    git clone <url-del-repositorio>
-   cd FRONT-END-ERP-LA-ESPONJA
+   cd ERP-FRONT-LA-ESPONJA
    ```
 
 2. Instala las dependencias:
@@ -63,10 +63,10 @@ src/
    npm install
    ```
 
-3. Configura las variables de entorno:
+3. Configura las variables de entorno (Vite):
    ```bash
    # Crea un archivo .env en la raíz del proyecto
-   REACT_APP_API_URL=http://localhost:5000/api
+   VITE_API_URL=http://localhost:8888/api
    ```
 
 4. Inicia el servidor de desarrollo:
@@ -74,7 +74,7 @@ src/
    npm run dev
    ```
 
-La aplicación estará disponible en `http://localhost:3000`
+Vite expone la app en `http://localhost:5173` (por defecto).
 
 ## 📝 Scripts Disponibles
 
@@ -98,7 +98,8 @@ El estado de la aplicación se gestiona con Redux Toolkit y está organizado en 
 
 La comunicación con el servidor se realiza a través de Axios con:
 
-- Interceptores para autenticación automática
+- Interceptor para autenticación automática (Authorization: Bearer <token>)
+- Header `X-Sucursal-Id` automático cuando el usuario es Admin y eligió una sucursal en el selector del Navbar
 - Manejo centralizado de errores
 - Base URL configurable
 - Timeout y retry automático
@@ -110,15 +111,36 @@ La comunicación con el servidor se realiza a través de Axios con:
 - Tema corporativo personalizable
 - Componentes reutilizables
 
-## 🚧 Estado del Desarrollo
+## 🏬 Multi-Sucursal (Front-End)
 
-- ✅ Estructura base del proyecto
-- ✅ Configuración de Redux
-- ✅ Navegación y rutas
-- ✅ Dashboard principal
-- 🚧 Módulos del ERP (en desarrollo)
-- ❌ Autenticación completa
-- ❌ Conexión con backend
+- El usuario inicia sesión y opera en su `sucursal_id` (del token JWT).
+- Si es Admin, puede seleccionar otra sucursal desde el footer del Navbar; el front enviará `X-Sucursal-Id` en todas las requests.
+- Se muestra una insignia (badge) de sucursal activa en el Navbar y en los encabezados de Dashboard, Inventario, Ventas y Compras.
+- Los listados y creaciones se recargan automáticamente cuando cambia la sucursal activa.
+
+Rutas protegidas por rol:
+- `/sucursales`: solo Admin (gestiona altas/ediciones/eliminaciones de sucursales).
+
+Gestión de sucursales (UI):
+- Menú lateral → "Sucursales" (🏬)
+- Form de alta/edición (Nombre, Descripción) + tabla con acciones por fila (✏️, 🗑️)
+
+Permisos (resumen):
+- Admin: acceso total y lectura de Caja/Estadísticas; puede cambiar sucursal.
+- Vendedor: opera solo en su sucursal; no tiene lectura de Caja ni Estadísticas.
+
+Contrato de API detallado: ver `API_CONTRACT.md`.
+
+Credenciales demo (botón “Cargar credenciales demo” en login):
+- Email: `admin@laesponja.com`
+- Password: `admin123`
+
+## 🔌 Integración con Insomnia (opcional)
+
+Si usas Insomnia para probar la API:
+- Importá `insomnia/ERP_LA_ESPONJA_Insomnia.json` (si está disponible en el repo)
+- Configurá en el Environment: `base_url`, `jwt_token` y `sucursal_id`
+- Para Admin, enviá `X-Sucursal-Id` para operar sobre otra sucursal
 
 ## 🤝 Contribución
 

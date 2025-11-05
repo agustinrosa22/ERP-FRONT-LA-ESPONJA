@@ -17,9 +17,11 @@ import {
 import { obtenerTodosClientes } from '../../store/slices/clientesSlice'
 import VentaForm from '../../components/VentaForm/VentaForm'
 import './Ventas.css'
+import SucursalBadge from '../../components/SucursalBadge/SucursalBadge'
 
 const Ventas = () => {
   const dispatch = useDispatch()
+  const { selectedSucursalId } = useSelector((state) => state.sucursales)
   
   // Estados de Redux
   const ventas = useSelector(selectVentas)
@@ -38,7 +40,7 @@ const Ventas = () => {
   const [ventaSeleccionada, setVentaSeleccionada] = useState(null)
   const [mostrarDetalle, setMostrarDetalle] = useState(false)
 
-  // Cargar datos iniciales
+  // Cargar datos iniciales y al cambiar de sucursal
   useEffect(() => {
     const cargarDatos = async () => {
       try {
@@ -51,7 +53,7 @@ const Ventas = () => {
     }
     
     cargarDatos()
-  }, [dispatch])
+  }, [dispatch, selectedSucursalId])
 
   // Actualizar ventas cuando cambian los filtros
   useEffect(() => {
@@ -379,6 +381,7 @@ const Ventas = () => {
       <div className="page-header">
         <h1>🛒 Módulo de Ventas</h1>
         <p>Gestión completa de ventas y facturación</p>
+        <SucursalBadge />
       </div>
 
       {/* Estadísticas */}

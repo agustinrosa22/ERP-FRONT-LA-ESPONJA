@@ -13,6 +13,7 @@ import {
   limpiarError
 } from '../../store/slices/dashboardSlice'
 import './Dashboard.css'
+import SucursalBadge from '../../components/SucursalBadge/SucursalBadge'
 
 const Dashboard = () => {
   const dispatch = useDispatch()
@@ -147,6 +148,9 @@ const Dashboard = () => {
       <div className="dashboard-header">
         <h1>Dashboard - La Esponja ERP</h1>
         <p>Bienvenido de nuevo, {usuario?.nombre || 'Usuario'}</p>
+        <div style={{ marginTop: 8 }}>
+          <SucursalBadge />
+        </div>
         <div className="dashboard-actions">
           <button 
             onClick={cargarDatosDashboard} 

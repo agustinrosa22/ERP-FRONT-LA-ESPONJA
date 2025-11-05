@@ -10,9 +10,11 @@ import MovimientoForm from '../../components/MovimientoForm/MovimientoForm'
 import MovimientoCard from '../../components/MovimientoCard/MovimientoCard'
 import AlertasStock from '../../components/AlertasStock/AlertasStock'
 import './Inventario.css'
+import SucursalBadge from '../../components/SucursalBadge/SucursalBadge'
 
 const Inventario = () => {
   const dispatch = useDispatch()
+  const { selectedSucursalId } = useSelector((state) => state.sucursales)
   const inventarioState = useSelector((state) => state.inventario)
   const { 
     productos = [], 
@@ -32,13 +34,10 @@ const Inventario = () => {
   const [productoPreseleccionado, setProductoPreseleccionado] = useState(null)
 
   useEffect(() => {
-    // Cargar datos iniciales
+    // Cargar datos iniciales y cuando cambia la sucursal activa
     dispatch(obtenerProductos())
     dispatch(obtenerMovimientos())
-    
-    // Prueba directa del endpoint
-
-  }, [dispatch])
+  }, [dispatch, selectedSucursalId])
 
   const handleFiltroChange = (campo, valor) => {
     dispatch(setFiltrosMovimientos({ [campo]: valor }))
@@ -251,6 +250,7 @@ const Inventario = () => {
     <div className="inventario-page">
       <div className="page-header">
         <h1>🏭 Gestión de Inventario</h1>
+        <SucursalBadge />
         <div className="header-stats">
           <div className="stat-card">
             <span className="stat-number">{productos.length}</span>

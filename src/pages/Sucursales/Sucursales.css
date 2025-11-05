@@ -1,0 +1,68 @@
+ .sucursales-page {
+  padding: 20px;
+}
+
+.sucursales-header h1 {
+  margin: 0 0 8px 0;
+  color: var(--text-primary, #333);
+}
+
+.sucursales-header p {
+  margin: 0 0 20px 0;
+  color: var(--text-secondary, #666);
+}
+
+.sucursales-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+}
+
+.sucursal-form-card,
+.sucursales-list-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.sucursal-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.sucursal-form input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #ddd);
+}
+
+.form-actions { display:flex; gap:8px; align-items:center; }
+.btn-secondary { background:#ffffff; color:var(--text-primary,#333); border:1px solid var(--border-color,#ddd); padding:10px 14px; border-radius:8px; cursor:pointer; }
+.btn-danger { background:#d32f2f; color:#fff; border:none; padding:10px 14px; border-radius:8px; cursor:pointer; }
+.btn-small { padding:6px 10px; border-radius:6px; font-size:.85rem; }
+.actions { display:flex; gap:8px; }
+
+.btn-primary {
+  background: var(--primary-color, #8d6e63);
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.error { color: #d32f2f; margin-top: 8px; }
+.loading { color: #666; }
+
+.sucursales-table { width: 100%; border-collapse: collapse; }
+.sucursales-table th, .sucursales-table td { border-bottom: 1px solid #eee; padding: 10px; text-align: left; }
+.sucursales-table .empty { text-align: center; color: #666; }
+
+@media (max-width: 800px) {
+  .sucursales-grid {
+    grid-template-columns: 1fr;
+  }
+}

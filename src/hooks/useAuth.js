@@ -11,11 +11,12 @@ export const useAuth = () => {
     const verificarTokenAlCargar = async () => {
       const tokenGuardado = localStorage.getItem('token')
       
-      if (tokenGuardado && !isAuthenticated) {
+      // Si hay token pero no tenemos el objeto usuario en memoria, recuperar el perfil
+      if (tokenGuardado && !usuario) {
         try {
-          // Verificar si el token es válido
+          // Verificar si el token es válido y obtener usuario
           const response = await authService.verificarToken()
-          if (response.data.success) {
+          if (response.data?.success && response.data?.data?.usuario) {
             dispatch(setCredentials({
               token: tokenGuardado,
               usuario: response.data.data.usuario
@@ -32,7 +33,7 @@ export const useAuth = () => {
     }
 
     verificarTokenAlCargar()
-  }, [dispatch, isAuthenticated])
+  }, [dispatch, usuario])
 
   return {
     isAuthenticated,

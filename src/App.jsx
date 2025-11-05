@@ -12,6 +12,7 @@ import Contabilidad from './pages/Contabilidad/Contabilidad'
 import Ventas from './pages/Ventas/Ventas'
 import Compras from './pages/Compras/Compras'
 import Reportes from './pages/Reportes/Reportes'
+import Sucursales from './pages/Sucursales/Sucursales'
 import useAuth from './hooks/useAuth'
 import './App.css'
 
@@ -84,7 +85,7 @@ function App() {
           <Route 
             path="/recursos-humanos" 
             element={
-              <ProtectedRoute>
+              <ProtectedRoute roles={['admin']}>
                 <RecursosHumanos />
               </ProtectedRoute>
             } 
@@ -124,6 +125,15 @@ function App() {
                 <Reportes />
               </ProtectedRoute>
             } 
+          />
+
+          <Route
+            path="/sucursales"
+            element={
+              <ProtectedRoute roles={['admin']}>
+                <Sucursales />
+              </ProtectedRoute>
+            }
           />
           
           <Route 

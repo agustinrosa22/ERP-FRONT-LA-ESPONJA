@@ -25,9 +25,11 @@ import ProveedorForm from '../../components/ProveedorForm/ProveedorForm'
 import ProveedorCard from '../../components/ProveedorCard/ProveedorCard'
 import CompraForm from '../../components/CompraForm/CompraForm'
 import './Compras.css'
+import SucursalBadge from '../../components/SucursalBadge/SucursalBadge'
 
 const Compras = () => {
   const dispatch = useDispatch()
+  const { selectedSucursalId } = useSelector((state) => state.sucursales)
   
   // Estados de Redux con valores por defecto seguros
   const { 
@@ -64,7 +66,7 @@ const Compras = () => {
   // Flag para evitar actualizaciones en bucle
   const [filtrosInicializados, setFiltrosInicializados] = useState(false)
 
-  // Cargar datos iniciales con manejo de errores
+  // Cargar datos iniciales con manejo de errores y al cambiar sucursal
   useEffect(() => {
     const cargarDatosIniciales = async () => {
       try {
@@ -93,7 +95,7 @@ const Compras = () => {
     }
     
     cargarDatosIniciales()
-  }, [dispatch])
+  }, [dispatch, selectedSucursalId])
 
   // Actualizar filtros de proveedores cuando cambia la búsqueda
   useEffect(() => {
@@ -819,6 +821,7 @@ const Compras = () => {
       <div className="page-header">
         <h1>🏭 Módulo de Compras</h1>
         <p>Gestión integral de proveedores y órdenes de compra</p>
+        <SucursalBadge />
       </div>
 
       {/* Mensaje informativo temporal */}
