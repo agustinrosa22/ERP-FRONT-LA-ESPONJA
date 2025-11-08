@@ -1,4 +1,4 @@
-.sucursal-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:6px 10px;font-size:.85rem;line-height:1}
+.sucursal-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.18);color:#000000;border:1px solid rgba(255,255,255,0.25);border-radius:999px;padding:6px 10px;font-size:.85rem;line-height:1}
 .sucursal-badge .badge-icon{font-size:1rem}
 .sucursal-badge .badge-label{opacity:.85}
 .sucursal-badge .badge-value{font-weight:600}

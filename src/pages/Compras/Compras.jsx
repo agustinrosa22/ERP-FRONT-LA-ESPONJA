@@ -33,7 +33,7 @@ const Compras = () => {
   
   // Estados de Redux con valores por defecto seguros
   const { 
-    proveedores = [], 
+    proveedores: proveedoresRaw = [], 
     loading: loadingProveedores = false, 
     filtrosProveedores = {},
     totalProveedores = 0,
@@ -41,6 +41,11 @@ const Compras = () => {
     totalPaginas = 1,
     estadisticasProveedor = null
   } = useSelector(state => state.proveedores || {})
+
+  // Filtrar proveedores válidos para evitar errores de renderizado
+  const proveedores = Array.isArray(proveedoresRaw) 
+    ? proveedoresRaw.filter(p => p && p.id) 
+    : []
 
   const compras = useSelector(selectCompras) || []
   const loadingCompras = useSelector(selectLoadingCompras) || false
@@ -104,19 +109,27 @@ const Compras = () => {
       return
     }
     
+    // Solo hacer la petición si realmente cambiaron los filtros de búsqueda
     const filtros = {
       busqueda: busquedaProveedor,
       estado: filtroEstadoProveedor,
       pagina: 1,
       limite: 10
     }
-    dispatch(setFiltrosProveedores(filtros))
     
-    // Manejo de errores en la carga de proveedores
-    dispatch(obtenerProveedores(filtros)).catch(error => {
-      console.error('Error al filtrar proveedores:', error)
-    })
-  }, [busquedaProveedor, filtroEstadoProveedor, dispatch, filtrosInicializados])
+    // Comparar con filtros actuales para evitar peticiones innecesarias
+    const filtrosActuales = filtrosProveedores || {}
+    const hayCambios = filtros.busqueda !== filtrosActuales.busqueda || 
+                      filtros.estado !== filtrosActuales.estado
+    
+    if (hayCambios) {
+      dispatch(setFiltrosProveedores(filtros))
+      // Manejo de errores en la carga de proveedores
+      dispatch(obtenerProveedores(filtros)).catch(error => {
+        console.error('Error al filtrar proveedores:', error)
+      })
+    }
+  }, [busquedaProveedor, filtroEstadoProveedor, dispatch, filtrosInicializados, filtrosProveedores])
 
   // Actualizar compras cuando cambian los filtros
   useEffect(() => {
@@ -174,8 +187,25 @@ const Compras = () => {
   const handleProveedorSuccess = () => {
     setMostrarFormularioProveedor(false)
     setProveedorEditar(null)
-    // Recargar lista de proveedores
-    dispatch(obtenerProveedores(filtrosProveedores))
+    
+    // Si estamos editando, mantener filtros. Si es nuevo, limpiar filtros para que sea visible
+    if (!proveedorEditar) {
+      // Limpiar filtros para mostrar el nuevo proveedor
+      setBusquedaProveedor('')
+      setFiltroEstadoProveedor('todos')
+      dispatch(clearFiltrosProveedores())
+      // Recargar sin filtros
+      dispatch(obtenerProveedores())
+    } else {
+      // Si es edición, recargar con filtros actuales
+      const filtrosActuales = {
+        busqueda: busquedaProveedor,
+        estado: filtroEstadoProveedor,
+        pagina: 1,
+        limite: 10
+      }
+      dispatch(obtenerProveedores(filtrosActuales))
+    }
   }
 
   // Handlers para paginación
@@ -348,15 +378,18 @@ const Compras = () => {
       ) : proveedores.length > 0 ? (
         <>
           <div className="proveedores-grid">
-            {proveedores.map(proveedor => (
-              <ProveedorCard
-                key={proveedor.id}
-                proveedor={proveedor}
-                onEdit={handleEditarProveedor}
-                onViewDetails={handleVerDetallesProveedor}
-                onToggleStatus={handleCambiarEstadoProveedor}
-              />
-            ))}
+            {proveedores
+              .filter(proveedor => proveedor && proveedor.id) // Filtrar elementos válidos
+              .map(proveedor => (
+                <ProveedorCard
+                  key={proveedor.id}
+                  proveedor={proveedor}
+                  onEdit={handleEditarProveedor}
+                  onViewDetails={handleVerDetallesProveedor}
+                  onToggleStatus={handleCambiarEstadoProveedor}
+                />
+              ))
+            }
           </div>
 
           {/* Paginación */}

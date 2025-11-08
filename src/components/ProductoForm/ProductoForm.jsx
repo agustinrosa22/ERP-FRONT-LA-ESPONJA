@@ -63,8 +63,7 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
     descripcion: /^[a-zA-ZÀ-ÿ\u00f1\u00d1\s0-9%°\-.,()\/\n]{0,1000}$/,
     ubicacion_almacen: /^[a-zA-Z0-9\s\-.,()]{0,100}$/,
     precio: /^\d+(\.\d{1,2})?$/,
-    stock: /^\d+(\.\d{1,3})?$/,
-    proveedor_id: /^\d+$/
+    stock: /^\d+(\.\d{1,3})?$/
   }
 
   const handleChange = (e) => {
@@ -100,12 +99,6 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
             fieldErrors[name] = 'Ingrese una cantidad válida (máximo 3 decimales). Ej: 25.750'
           } else if (value && parseFloat(value) < 0) {
             fieldErrors[name] = 'La cantidad no puede ser negativa'
-          }
-          break
-          
-        case 'proveedor_id':
-          if (value && !regexPatterns.proveedor_id.test(value)) {
-            fieldErrors.proveedor_id = 'El ID del proveedor debe ser un número entero'
           }
           break
       }
@@ -201,13 +194,6 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
       newErrors.unidad_medida = 'La unidad de medida es requerida'
     }
 
-    // Validar proveedor ID (opcional)
-    if (formData.proveedor_id && formData.proveedor_id.trim()) {
-      if (!regexPatterns.proveedor_id.test(formData.proveedor_id.trim())) {
-        newErrors.proveedor_id = 'El ID del proveedor debe ser un número entero'
-      }
-    }
-
     // Validar ubicación de almacén (opcional)
     if (formData.ubicacion_almacen && formData.ubicacion_almacen.trim() && 
         !regexPatterns.ubicacion_almacen.test(formData.ubicacion_almacen.trim())) {
@@ -233,8 +219,7 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
         precio: parseFloat(formData.precio),
         costo: parseFloat(formData.costo),
         stock: formData.stock ? parseFloat(formData.stock) : 0,
-        stock_minimo: formData.stock_minimo ? parseFloat(formData.stock_minimo) : 0,
-        proveedor_id: formData.proveedor_id ? parseInt(formData.proveedor_id) : null
+        stock_minimo: formData.stock_minimo ? parseFloat(formData.stock_minimo) : 0
       }
 
       if (producto?.id) {
@@ -459,22 +444,6 @@ const ProductoForm = ({ producto = null, onClose, onSubmit }) => {
 
           {/* Otros campos */}
           <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="proveedor_id">ID Proveedor</label>
-              <input
-                type="number"
-                id="proveedor_id"
-                name="proveedor_id"
-                value={formData.proveedor_id}
-                onChange={handleChange}
-                className={errors.proveedor_id ? 'error' : ''}
-                placeholder="Ej: 123 (ID del proveedor)"
-              />
-              {errors.proveedor_id && (
-                <span className="error-message">{errors.proveedor_id}</span>
-              )}
-            </div>
-
             <div className="form-group">
               <label htmlFor="ubicacion_almacen">Ubicación en Almacén</label>
               <input

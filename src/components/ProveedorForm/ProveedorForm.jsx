@@ -132,16 +132,16 @@ const ProveedorForm = ({ onClose, onSuccess, proveedorEditar = null }) => {
           id: proveedorEditar.id, 
           proveedorData: formData 
         })).unwrap()
-        alert('Proveedor actualizado correctamente')
       } else {
         await dispatch(crearProveedor(formData)).unwrap()
-        alert('Proveedor creado correctamente')
       }
       
+      // Llamar onSuccess primero para manejar el estado del componente padre
       if (onSuccess) onSuccess()
       if (onClose) onClose()
       
     } catch (error) {
+      // Mantener alert solo para errores
       alert(`Error: ${error}`)
     }
   }

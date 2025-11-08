@@ -175,7 +175,9 @@ const proveedoresSlice = createSlice({
       .addCase(obtenerProveedores.fulfilled, (state, action) => {
         state.loading = false
         if (action.payload && action.payload.success) {
-          state.proveedores = action.payload.data?.proveedores || []
+          // Filtrar elementos válidos para evitar undefined/null en el array
+          const proveedoresRaw = action.payload.data?.proveedores || []
+          state.proveedores = proveedoresRaw.filter(p => p && p.id)
           state.totalProveedores = action.payload.data?.pagination?.total || 0
           state.paginaActual = action.payload.data?.pagination?.page || 1
           state.totalPaginas = action.payload.data?.pagination?.totalPages || 1
@@ -218,9 +220,9 @@ const proveedoresSlice = createSlice({
       })
       .addCase(crearProveedor.fulfilled, (state, action) => {
         state.loadingCrear = false
-        if (action.payload?.success) {
-          state.proveedores.unshift(action.payload?.data?.proveedor)
-        }
+        // NO agregamos el proveedor localmente aquí
+        // La lista se actualizará cuando el componente recargue con obtenerProveedores()
+        // Esto evita inconsistencias entre el estado local y los filtros del servidor
       })
       .addCase(crearProveedor.rejected, (state, action) => {
         state.loadingCrear = false
@@ -234,13 +236,14 @@ const proveedoresSlice = createSlice({
       })
       .addCase(actualizarProveedor.fulfilled, (state, action) => {
         state.loadingActualizar = false
-        if (action.payload?.success) {
-          const index = state.proveedores.findIndex(p => p.id === action.payload?.data?.proveedor?.id)
+        if (action.payload?.success && action.payload?.data?.proveedor) {
+          const proveedorActualizado = action.payload.data.proveedor
+          const index = state.proveedores.findIndex(p => p && p.id === proveedorActualizado.id)
           if (index !== -1) {
-            state.proveedores[index] = action.payload?.data?.proveedor
+            state.proveedores[index] = proveedorActualizado
           }
-          if (state.proveedorSeleccionado?.id === action.payload?.data?.proveedor?.id) {
-            state.proveedorSeleccionado = action.payload?.data?.proveedor
+          if (state.proveedorSeleccionado?.id === proveedorActualizado.id) {
+            state.proveedorSeleccionado = proveedorActualizado
           }
         }
       })

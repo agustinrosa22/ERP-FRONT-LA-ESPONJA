@@ -32,8 +32,46 @@ export const logoutUsuario = createAsyncThunk(
   }
 )
 
+// Thunk para verificar token al cargar la aplicación
+export const verificarToken = createAsyncThunk(
+  'auth/verificarToken',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('No hay token')
+      }
+      
+      const response = await authService.verificarToken()
+      if (response.data.success) {
+        return response.data.data // Retornamos { token, usuario }
+      } else {
+        throw new Error('Token inválido')
+      }
+    } catch (error) {
+      // Si el token es inválido, limpiar localStorage
+      localStorage.removeItem('token')
+      localStorage.removeItem('usuario')
+      localStorage.removeItem('usuarioRol')
+      localStorage.removeItem('usuarioSucursalId')
+      return rejectWithValue('Token inválido')
+    }
+  }
+)
+
+// Función para recuperar usuario desde localStorage
+const getUserFromLocalStorage = () => {
+  try {
+    const userData = localStorage.getItem('usuario')
+    return userData ? JSON.parse(userData) : null
+  } catch (error) {
+    console.error('Error al recuperar usuario del localStorage:', error)
+    return null
+  }
+}
+
 const initialState = {
-  usuario: null,
+  usuario: getUserFromLocalStorage(),
   token: localStorage.getItem('token'),
   isAuthenticated: !!localStorage.getItem('token'), // Verificar si existe token
   loading: false,
@@ -53,6 +91,7 @@ const authSlice = createSlice({
       state.token = token
       state.isAuthenticated = true
       localStorage.setItem('token', token)
+      localStorage.setItem('usuario', JSON.stringify(usuario))
       try {
         if (usuario?.rol) localStorage.setItem('usuarioRol', usuario.rol)
         if (usuario?.sucursal_id !== undefined && usuario?.sucursal_id !== null) {
@@ -65,6 +104,7 @@ const authSlice = createSlice({
       state.token = null
       state.isAuthenticated = false
       localStorage.removeItem('token')
+      localStorage.removeItem('usuario')
       localStorage.removeItem('usuarioRol')
       localStorage.removeItem('usuarioSucursalId')
       localStorage.removeItem('selectedSucursalId')
@@ -83,6 +123,7 @@ const authSlice = createSlice({
         state.token = action.payload.token
         state.isAuthenticated = true
         localStorage.setItem('token', action.payload.token)
+        localStorage.setItem('usuario', JSON.stringify(action.payload.usuario))
         // Persistir rol y sucursal del usuario para lógica de multi-sucursal en interceptores
         try {
           if (action.payload?.usuario?.rol) {
@@ -103,9 +144,27 @@ const authSlice = createSlice({
         state.token = null
         state.isAuthenticated = false
         localStorage.removeItem('token')
+        localStorage.removeItem('usuario')
         localStorage.removeItem('usuarioRol')
         localStorage.removeItem('usuarioSucursalId')
         localStorage.removeItem('selectedSucursalId')
+      })
+      // Verificar token
+      .addCase(verificarToken.pending, (state) => {
+        state.loading = true
+      })
+      .addCase(verificarToken.fulfilled, (state, action) => {
+        state.loading = false
+        state.usuario = action.payload.usuario
+        state.token = action.payload.token
+        state.isAuthenticated = true
+      })
+      .addCase(verificarToken.rejected, (state) => {
+        state.loading = false
+        state.usuario = null
+        state.token = null
+        state.isAuthenticated = false
+        state.error = null // No mostrar error de token inválido
       })
   }
 })

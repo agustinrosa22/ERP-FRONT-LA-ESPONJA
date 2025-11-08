@@ -19,11 +19,17 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`
     }
 
-    // Si el Admin seleccionó una sucursal, la enviamos (solo si el rol es admin)
+    // Enviar sucursal ID según el rol del usuario
     const usuarioRol = localStorage.getItem('usuarioRol')
-    const selectedSucursalId = localStorage.getItem('selectedSucursalId')
+    const selectedSucursalId = localStorage.getItem('selectedSucursalId') // Para admin: sucursal seleccionada
+    const usuarioSucursalId = localStorage.getItem('usuarioSucursalId')   // Para no-admin: su sucursal propia
+    
     if (usuarioRol === 'admin' && selectedSucursalId) {
+      // Admin con sucursal seleccionada
       config.headers['X-Sucursal-Id'] = selectedSucursalId
+    } else if (usuarioRol !== 'admin' && usuarioSucursalId) {
+      // Usuario no-admin usa su propia sucursal
+      config.headers['X-Sucursal-Id'] = usuarioSucursalId
     }
 
     return config
@@ -39,7 +45,9 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
-      // Limpiar selección de sucursal al expirar sesión
+      localStorage.removeItem('usuario')
+      localStorage.removeItem('usuarioRol')
+      localStorage.removeItem('usuarioSucursalId')
       localStorage.removeItem('selectedSucursalId')
       window.location.href = '/login'
     }

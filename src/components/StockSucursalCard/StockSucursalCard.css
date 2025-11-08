@@ -1,0 +1,206 @@
+.stock-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #3498db;
+  margin-bottom: 16px;
+  transition: all 0.3s ease;
+}
+
+.stock-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stock-card.stock-bajo {
+  border-left-color: #e74c3c;
+  background: #fff5f5;
+}
+
+.stock-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.producto-info h3 {
+  margin: 0 0 8px 0;
+  color: #2c3e50;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.producto-info .codigo {
+  display: inline-block;
+  background: #ecf0f1;
+  color: #7f8c8d;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: monospace;
+  margin-right: 8px;
+}
+
+.producto-info .categoria {
+  display: inline-block;
+  background: #3498db;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.stock-status .alerta-badge {
+  background: #e74c3c;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.stock-details {
+  margin-bottom: 20px;
+}
+
+.stock-amounts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stock-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stock-item label {
+  font-size: 12px;
+  color: #7f8c8d;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.stock-item .cantidad {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.stock-item .cantidad.bajo {
+  color: #e74c3c;
+}
+
+.stock-item .cantidad.minimo {
+  color: #f39c12;
+}
+
+.stock-item .cantidad.maximo {
+  color: #27ae60;
+}
+
+.stock-bar {
+  width: 100%;
+  height: 8px;
+  background: #ecf0f1;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.stock-fill {
+  height: 100%;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.ubicacion-info,
+.sucursal-info,
+.valor-info {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.ubicacion-info label,
+.sucursal-info label,
+.valor-info label {
+  color: #7f8c8d;
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.ubicacion-info span,
+.sucursal-info span {
+  color: #2c3e50;
+}
+
+.valor-info span {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.stock-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.stock-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: #3498db;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2980b9;
+}
+
+.btn-secondary {
+  background: #95a5a6;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #7f8c8d;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stock-card {
+    padding: 16px;
+  }
+  
+  .stock-card-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .stock-amounts {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .stock-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .stock-actions button {
+    width: 100%;
+  }
+}

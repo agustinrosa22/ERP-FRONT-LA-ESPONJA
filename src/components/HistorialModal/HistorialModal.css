@@ -1,0 +1,406 @@
+.historial-modal {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f8fafc;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.historial-content {
+  max-height: calc(90vh - 140px);
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.historial-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 16px;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.historial-timeline {
+  position: relative;
+}
+
+.historial-timeline::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e5e7eb;
+}
+
+.timeline-item {
+  display: flex;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.timeline-marker {
+  position: relative;
+  z-index: 2;
+}
+
+.marker-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.marker-icon.entrada {
+  background: #10b981;
+  color: white;
+}
+
+.marker-icon.salida {
+  background: #ef4444;
+  color: white;
+}
+
+.marker-icon.ajuste {
+  background: #f59e0b;
+  color: white;
+}
+
+.marker-icon.default {
+  background: #6b7280;
+  color: white;
+}
+
+.timeline-content {
+  flex: 1;
+  margin-left: 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.timeline-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.tipo-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.tipo-badge.entrada {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.tipo-badge.salida {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.tipo-badge.ajuste {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.sucursal-badge {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.fecha {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.cantidad-badge {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.cantidad-badge.positivo {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.cantidad-badge.negativo {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.cantidad-badge.neutro {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.timeline-details {
+  display: grid;
+  gap: 8px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.detail-label {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  color: #1f2937;
+  font-size: 13px;
+  text-align: right;
+  flex: 1;
+}
+
+.detail-value.motivo {
+  font-style: italic;
+  color: #4b5563;
+  text-align: left;
+}
+
+.empty-historial {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-historial h3 {
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.empty-historial p {
+  color: #6b7280;
+  margin: 0;
+}
+
+.modal-footer {
+  padding: 20px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f8fafc;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-secondary {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  background: #f3f4f6;
+  color: #374151;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .historial-modal {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .historial-content {
+    padding: 16px;
+  }
+  
+  .historial-stats {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+  
+  .timeline-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .timeline-info {
+    order: 2;
+  }
+  
+  .cantidad-badge {
+    order: 1;
+    align-self: flex-start;
+  }
+  
+  .detail-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .detail-label {
+    min-width: auto;
+  }
+  
+  .detail-value {
+    text-align: left;
+  }
+}
+
+/* Scrollbar personalizado */
+.historial-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.historial-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.historial-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.historial-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Animaciones */
+.modal-overlay {
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+.historial-modal {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.timeline-item {
+  animation: timelineItemFadeIn 0.4s ease-out backwards;
+}
+
+.timeline-item:nth-child(1) { animation-delay: 0.1s; }
+.timeline-item:nth-child(2) { animation-delay: 0.15s; }
+.timeline-item:nth-child(3) { animation-delay: 0.2s; }
+.timeline-item:nth-child(4) { animation-delay: 0.25s; }
+.timeline-item:nth-child(5) { animation-delay: 0.3s; }
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+  from { 
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to { 
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes timelineItemFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

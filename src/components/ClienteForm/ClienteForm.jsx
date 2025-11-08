@@ -73,9 +73,9 @@ const ClienteForm = ({ cliente, onClose, onSuccess }) => {
     telefono: /^(\+54\s?)?(\(?\d{2,4}\)?[\s\-]?)?\d{4,8}$/,
     documento: {
       DNI: /^\d{7,8}$/,
-      RUC: /^\d{11}$/,
-      PASAPORTE: /^[A-Z]{1,3}\d{6,9}$/,
-      CARNET_EXTRANJERIA: /^[A-Z0-9]{6,12}$/
+      CUIL: /^(20|23|24|25|26|27|30|33|34)\d{8}\d{1}$/,
+      CUIT: /^(20|23|24|25|26|27|30|33|34)\d{8}\d{1}$/,
+      CEDULA_EXTRANJERA: /^[A-Z0-9]{6,15}$/
     },
     codigo_postal: /^\d{4,8}$/,
     numero: /^[0-9]+[a-zA-Z]?$/,
@@ -112,9 +112,9 @@ const ClienteForm = ({ cliente, onClose, onSuccess }) => {
       if (docPattern && !docPattern.test(formData.documento.trim())) {
         const mensajes = {
           DNI: 'El DNI debe tener 7 u 8 dígitos',
-          RUC: 'El RUC debe tener exactamente 11 dígitos',
-          PASAPORTE: 'El pasaporte debe tener formato: 1-3 letras seguidas de 6-9 números',
-          CARNET_EXTRANJERIA: 'El carnet de extranjería debe tener 6-12 caracteres alfanuméricos'
+          CUIL: 'El CUIL debe tener 11 dígitos y empezar con 20, 23, 24, 25, 26, 27, 30, 33 o 34',
+          CUIT: 'El CUIT debe tener 11 dígitos y empezar con 20, 23, 24, 25, 26, 27, 30, 33 o 34',
+          CEDULA_EXTRANJERA: 'La cédula extranjera debe tener entre 6 y 15 caracteres alfanuméricos'
         }
         newErrors.documento = mensajes[tipoDoc] || 'Formato de documento inválido'
       }
@@ -217,9 +217,9 @@ const ClienteForm = ({ cliente, onClose, onSuccess }) => {
             if (docPattern && !docPattern.test(value.trim())) {
               const mensajes = {
                 DNI: 'El DNI debe tener 7 u 8 dígitos',
-                RUC: 'El RUC debe tener exactamente 11 dígitos',
-                PASAPORTE: 'El pasaporte debe tener formato: 1-3 letras seguidas de 6-9 números',
-                CARNET_EXTRANJERIA: 'El carnet de extranjería debe tener 6-12 caracteres alfanuméricos'
+                CUIL: 'El CUIL debe tener 11 dígitos y empezar con 20, 23, 24, 25, 26, 27, 30, 33 o 34',
+                CUIT: 'El CUIT debe tener 11 dígitos y empezar con 20, 23, 24, 25, 26, 27, 30, 33 o 34',
+                CEDULA_EXTRANJERA: 'La cédula extranjera debe tener entre 6 y 15 caracteres alfanuméricos'
               }
               fieldErrors.documento = mensajes[tipoDoc] || 'Formato de documento inválido'
             }
@@ -319,9 +319,9 @@ const ClienteForm = ({ cliente, onClose, onSuccess }) => {
       if (docPattern && !docPattern.test(formData.documento.trim())) {
         const mensajes = {
           DNI: 'El DNI debe tener 7 u 8 dígitos',
-          RUC: 'El RUC debe tener exactamente 11 dígitos',
-          PASAPORTE: 'El pasaporte debe tener formato: 1-3 letras seguidas de 6-9 números',
-          CARNET_EXTRANJERIA: 'El carnet de extranjería debe tener 6-12 caracteres alfanuméricos'
+          CUIL: 'El CUIL debe tener 11 dígitos y empezar con 20, 23, 24, 27 o 30-34',
+          CUIT: 'El CUIT debe tener 11 dígitos y empezar con 20, 23, 24, 27 o 30-34',
+          CEDULA_EXTRANJERA: 'La cédula extranjera debe tener entre 6 y 15 caracteres alfanuméricos'
         }
         setErrors(prev => ({
           ...prev,
@@ -412,9 +412,9 @@ const ClienteForm = ({ cliente, onClose, onSuccess }) => {
                 disabled={loading}
               >
                 <option value="DNI">DNI</option>
-                <option value="RUC">RUC</option>
-                <option value="PASAPORTE">Pasaporte</option>
-                <option value="CARNET_EXTRANJERIA">Carnet de Extranjería</option>
+                <option value="CUIL">CUIL</option>
+                <option value="CUIT">CUIT</option>
+                <option value="CEDULA_EXTRANJERA">Cédula Extranjera</option>
               </select>
             </div>
 
