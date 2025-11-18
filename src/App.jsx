@@ -13,6 +13,7 @@ import Ventas from './pages/Ventas/Ventas'
 import Compras from './pages/Compras/Compras'
 import Reportes from './pages/Reportes/Reportes'
 import Sucursales from './pages/Sucursales/Sucursales'
+import Ayuda from './pages/Ayuda/Ayuda'
 import useAuth from './hooks/useAuth'
 import './App.css'
 
@@ -125,6 +126,15 @@ function App() {
                 <Reportes />
               </ProtectedRoute>
             } 
+          />
+
+          <Route
+            path="/ayuda"
+            element={
+              <ProtectedRoute>
+                <Ayuda />
+              </ProtectedRoute>
+            }
           />
 
           <Route

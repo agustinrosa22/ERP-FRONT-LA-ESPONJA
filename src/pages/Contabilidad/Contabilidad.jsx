@@ -21,6 +21,8 @@ import './Contabilidad.css'
 
 const Contabilidad = () => {
   const dispatch = useDispatch()
+  const { selectedSucursalId } = useSelector((state) => state.sucursales || {})
+  const { usuario, isAuthenticated } = useSelector((state) => state.auth || {})
   const movimientos = useSelector(selectMovimientos)
   const balance = useSelector(selectBalance)
   const estadisticas = useSelector(selectEstadisticas)
@@ -177,6 +179,17 @@ const Contabilidad = () => {
   useEffect(() => {
     cargarDatos()
   }, [dispatch])
+
+  // Refrescar automáticamente al cambiar de sesión o sucursal activa
+  useEffect(() => {
+    if (!isAuthenticated) return
+    // Recargar dashboard (balance, estadísticas, movimientos recientes)
+    cargarDatos()
+    // Si el usuario está en la vista de movimientos, recargar la lista base
+    if (vistaActual === 'movimientos') {
+      dispatch(obtenerMovimientos({ limite: 20, offset: 0 }))
+    }
+  }, [isAuthenticated, usuario?.id, usuario?.rol, selectedSucursalId])
 
   // Recargar movimientos cuando se cambie a la vista de movimientos
   useEffect(() => {

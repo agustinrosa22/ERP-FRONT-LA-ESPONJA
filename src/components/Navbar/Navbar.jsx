@@ -24,6 +24,7 @@ const Navbar = () => {
     { path: '/ventas', label: 'Ventas', icon: '🛒' },
     { path: '/compras', label: 'Compras', icon: '🛍️' },
     { path: '/reportes', label: 'Reportes', icon: '📈' },
+    { path: '/ayuda', label: 'Ayuda', icon: '❓' },
   ]
 
   useEffect(() => {
