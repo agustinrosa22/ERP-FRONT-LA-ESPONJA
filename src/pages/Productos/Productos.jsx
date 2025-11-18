@@ -18,6 +18,7 @@ const Productos = () => {
   
   // Usar valores por defecto para evitar crashes
   const productosState = useSelector((state) => state.productos) || {}
+  const { selectedSucursalId } = useSelector((state) => state.sucursales || {})
   const { 
     productos = [], 
     productosStockBajo = [],
@@ -39,6 +40,7 @@ const Productos = () => {
   const [hasSearched, setHasSearched] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [showStockBajo, setShowStockBajo] = useState(false)
+  const [modoGlobal, setModoGlobal] = useState(false)
 
   // Hook para detectar mobile
   useEffect(() => {
@@ -57,19 +59,15 @@ const Productos = () => {
   }, [viewMode])
 
   useEffect(() => {
-    // Solo intentar cargar productos si no estamos en modo desarrollo sin backend
     const loadProducts = async () => {
       try {
-        await dispatch(obtenerTodosProductos())
-        await dispatch(obtenerProductosStockBajo())
+        await dispatch(obtenerTodosProductos({ incluir_stock_sucursal: true, ...(modoGlobal ? { global: true } : {}) }))
       } catch (error) {
-
-        // No hacer nada, el error se maneja en el slice
+        // Errores manejados en el slice
       }
     }
-    
     loadProducts()
-  }, [dispatch])
+  }, [dispatch, selectedSucursalId, modoGlobal])
 
   useEffect(() => {
     dispatch(clearError())
@@ -89,7 +87,7 @@ const Productos = () => {
 
     try {
       if (searchType === 'codigo') {
-        const result = await dispatch(buscarProductoPorCodigo(searchTerm.trim()))
+        const result = await dispatch(buscarProductoPorCodigo({ codigo: searchTerm.trim(), params: { ...(modoGlobal ? { global: true } : {}) } }))
         
         if (buscarProductoPorCodigo.fulfilled.match(result)) {
           if (result.payload) {
@@ -129,11 +127,17 @@ const Productos = () => {
     dispatch(clearError())
   }
 
-  const handleShowStockBajo = () => {
+  const handleShowStockBajo = async () => {
     setShowStockBajo(true)
     setHasSearched(true)
-    dispatch(setSearchResults(productosStockBajo))
     setSearchTerm('')
+    // Respetar modo global/estricto y traer con stock_bajo=true
+    const result = await dispatch(obtenerTodosProductos({ incluir_stock_sucursal: true, stock_bajo: true, ...(modoGlobal ? { global: true } : {}) }))
+    if (obtenerTodosProductos.fulfilled.match(result)) {
+      dispatch(setSearchResults(Array.isArray(result.payload) ? result.payload : []))
+    } else {
+      dispatch(setSearchResults([]))
+    }
   }
 
   const handleEditProducto = (producto) => {
@@ -313,6 +317,13 @@ const Productos = () => {
         </form>
 
         <div className="view-controls">
+            <button 
+              className={`view-btn ${modoGlobal ? 'active' : ''}`}
+              onClick={() => setModoGlobal(v => !v)}
+              title={modoGlobal ? 'Ver catálogo global (todos los productos)' : 'Ver solo productos presentes en la sucursal'}
+            >
+              {modoGlobal ? '🌐 Global' : '🏬 Estricto'}
+            </button>
           <button 
             className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
             onClick={() => setViewMode('grid')}

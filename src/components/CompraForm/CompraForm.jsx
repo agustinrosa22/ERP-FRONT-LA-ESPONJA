@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { obtenerProductos } from '../../store/slices/inventarioSlice'
 import { crearCompra, selectLoadingCrearCompra } from '../../store/slices/comprasSlice'
 import './CompraForm.css'
 
@@ -136,6 +137,11 @@ const CompraForm = ({ onClose, onSuccess }) => {
       alert(`Error al crear compra: ${error}`)
     }
   }
+
+  // Cargar catálogo de productos en modo global para permitir comprar productos no activos aún en la sucursal
+  useEffect(() => {
+    dispatch(obtenerProductos({ incluir_stock_sucursal: true, global: true }))
+  }, [dispatch])
 
   return (
     <div className="modal-overlay">

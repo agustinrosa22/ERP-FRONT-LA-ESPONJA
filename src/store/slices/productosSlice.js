@@ -4,14 +4,21 @@ import productosService from '../../services/productosService'
 // Async thunks para productos
 export const obtenerTodosProductos = createAsyncThunk(
   'productos/obtenerTodos',
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await productosService.obtenerTodos()
+      const response = await productosService.obtenerTodos(params)
       // Manejar diferentes estructuras de respuesta del backend
       if (response.data?.success) {
+        // El backend puede devolver { success, data: { productos: [], pagination: {...} } } o un array directo
+        if (Array.isArray(response.data.data)) return response.data.data
+        if (Array.isArray(response.data.data?.productos)) return response.data.data.productos
         return response.data.data || []
       }
-      return Array.isArray(response.data) ? response.data : []
+      // Si devuelve directamente un array
+      if (Array.isArray(response.data)) return response.data
+      // Si devuelve objeto con productos
+      if (Array.isArray(response.data?.productos)) return response.data.productos
+      return []
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Error al obtener productos')
     }
@@ -80,9 +87,11 @@ export const eliminarProducto = createAsyncThunk(
 
 export const buscarProductoPorCodigo = createAsyncThunk(
   'productos/buscarPorCodigo',
-  async (codigo, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
-      const response = await productosService.buscarPorCodigo(codigo)
+      const codigo = typeof payload === 'string' ? payload : payload?.codigo
+      const params = typeof payload === 'object' && payload ? (payload.params || {}) : {}
+      const response = await productosService.buscarPorCodigo(codigo, params)
       // Manejar diferentes estructuras de respuesta del backend
       if (response.data?.success) {
         return response.data.data
@@ -172,8 +181,7 @@ const productosSlice = createSlice({
       })
       .addCase(obtenerTodosProductos.fulfilled, (state, action) => {
         state.loading = false
-        // Asegurarse de que siempre sea un array
-        state.productos = Array.isArray(action.payload) ? action.payload : (action.payload?.productos || [])
+        state.productos = Array.isArray(action.payload) ? action.payload : []
       })
       .addCase(obtenerTodosProductos.rejected, (state, action) => {
         state.loading = false

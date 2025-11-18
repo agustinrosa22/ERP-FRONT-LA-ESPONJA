@@ -4,9 +4,10 @@ import inventarioService from '../../services/inventarioService'
 // ========== THUNKS PARA PRODUCTOS ==========
 export const obtenerProductos = createAsyncThunk(
   'inventario/obtenerProductos',
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await inventarioService.obtenerProductos()
+      const mergedParams = { incluir_stock_sucursal: true, ...params }
+      const response = await inventarioService.obtenerProductos(mergedParams)
       
       // Manejar la estructura específica del backend  
       if (response.data?.success) {
@@ -326,7 +327,10 @@ const inventarioSlice = createSlice({
         if (responseData?.producto_id) {
           const productoIndex = state.productos.findIndex(p => p.id === responseData.producto_id)
           if (productoIndex !== -1) {
-            state.productos[productoIndex].stock = responseData.stock_nuevo
+            // Actualizamos stock_actual según el nuevo contrato
+            if (typeof responseData.stock_nuevo !== 'undefined') {
+              state.productos[productoIndex].stock_actual = responseData.stock_nuevo
+            }
           }
         }
       })

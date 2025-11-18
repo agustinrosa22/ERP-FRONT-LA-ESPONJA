@@ -31,7 +31,8 @@ const VentaForm = ({ onClose, onSuccess }) => {
   // Cargar datos iniciales
   useEffect(() => {
     dispatch(obtenerTodosClientes())
-    dispatch(obtenerProductos())
+    // Cargar productos en modo estricto (por defecto) con stock por sucursal
+    dispatch(obtenerProductos({ incluir_stock_sucursal: true }))
   }, [dispatch])
 
   // Manejar cambios en el formulario principal
@@ -70,8 +71,9 @@ const VentaForm = ({ onClose, onSuccess }) => {
       return
     }
 
-    if (cantidad > producto.stock) {
-      alert(`Stock insuficiente. Disponible: ${producto.stock}`)
+    const stockDisponible = Number(producto.stock_actual ?? 0)
+    if (cantidad > stockDisponible) {
+      alert(`Stock insuficiente. Disponible: ${stockDisponible}`)
       return
     }
 
@@ -88,7 +90,7 @@ const VentaForm = ({ onClose, onSuccess }) => {
       cantidad: parseInt(cantidad),
       precio_unitario: parseFloat(precioUnitario),
       subtotal: parseInt(cantidad) * parseFloat(precioUnitario),
-      stock_disponible: producto.stock
+      stock_disponible: Number(producto.stock_actual ?? 0)
     }
 
     setDetalles(prev => [...prev, nuevoDetalle])
@@ -276,9 +278,9 @@ const VentaForm = ({ onClose, onSuccess }) => {
                     className="form-input"
                   >
                     <option value="">Seleccionar producto...</option>
-                    {productos.filter(p => p.stock > 0).map(producto => (
+                    {productos.filter(p => Number(p.stock_actual ?? 0) > 0).map(producto => (
                       <option key={producto.id} value={producto.id}>
-                        {producto.nombre} - Stock: {producto.stock} - ${producto.precio}
+                        {producto.nombre} - Stock: {Number(producto.stock_actual ?? 0)} - ${producto.precio}
                       </option>
                     ))}
                   </select>

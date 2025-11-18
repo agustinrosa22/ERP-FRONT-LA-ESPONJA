@@ -2,9 +2,31 @@ import api from './api'
 
 const inventarioService = {
   // ========== PRODUCTOS ==========
-  obtenerProductos: async () => {
+  obtenerProductos: async (params = {}) => {
+    // Por defecto incluir stock por sucursal; soporta global=true, search, etc.
+    const {
+      page,
+      limit,
+      search,
+      categoria,
+      activo,
+      incluir_stock_sucursal = true,
+      stock_bajo,
+      global,
+    } = params
+
+    const query = {
+      incluir_stock_sucursal,
+      ...(page ? { page } : {}),
+      ...(limit ? { limit } : {}),
+      ...(search ? { search } : {}),
+      ...(categoria ? { categoria } : {}),
+      ...(typeof activo !== 'undefined' && activo !== null && activo !== '' && activo !== 'todos' ? { activo } : {}),
+      ...(typeof stock_bajo !== 'undefined' ? { stock_bajo } : {}),
+      ...(typeof global !== 'undefined' ? { global } : {}),
+    }
     try {
-      const response = await api.get('/productos')
+      const response = await api.get('/productos', { params: query })
       return response
     } catch (error) {
       throw error
@@ -56,16 +78,17 @@ const inventarioService = {
   },
 
   crearMovimiento: async (movimiento) => {
+    // Nuevo contrato: POST /inventario con producto_id incluido en el body
     const dataToSend = {
+      producto_id: movimiento.producto_id,
       tipo: movimiento.tipo,
-      cantidad: parseInt(movimiento.cantidad),
+      cantidad: parseFloat(movimiento.cantidad),
       motivo: movimiento.motivo || 'Movimiento de inventario',
       precio_unitario: movimiento.precio_unitario ? parseFloat(movimiento.precio_unitario) : null,
       observaciones: movimiento.observaciones || null
     }
-    
     try {
-      const response = await api.post(`/productos/${movimiento.producto_id}/ajustar-stock`, dataToSend)
+      const response = await api.post(`/inventario`, dataToSend)
       return response
     } catch (error) {
       throw error

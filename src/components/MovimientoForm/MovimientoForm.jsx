@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { crearMovimiento } from '../../store/slices/inventarioSlice'
+import { crearMovimiento, obtenerProductos } from '../../store/slices/inventarioSlice'
 import './MovimientoForm.css'
 
 const MovimientoForm = ({ onClose, onSuccess, productoPreseleccionado }) => {
@@ -21,7 +21,8 @@ const MovimientoForm = ({ onClose, onSuccess, productoPreseleccionado }) => {
 
   useEffect(() => {
     if (productos.length === 0) {
-      dispatch(obtenerProductos())
+      // Cargar productos con stock por sucursal
+      dispatch(obtenerProductos({ incluir_stock_sucursal: true }))
     }
   }, [dispatch, productos.length])
 
@@ -99,8 +100,9 @@ const MovimientoForm = ({ onClose, onSuccess, productoPreseleccionado }) => {
     // Validar stock disponible para salidas
     if (formData.tipo === 'salida' && productoSeleccionado) {
       const cantidadSalida = parseFloat(formData.cantidad)
-      if (cantidadSalida > productoSeleccionado.stock) {
-        newErrors.cantidad = `Stock insuficiente. Disponible: ${productoSeleccionado.stock}`
+      const stockDisp = Number(productoSeleccionado.stock_actual ?? 0)
+      if (cantidadSalida > stockDisp) {
+        newErrors.cantidad = `Stock insuficiente. Disponible: ${stockDisp}`
       }
     }
 
@@ -189,7 +191,7 @@ const MovimientoForm = ({ onClose, onSuccess, productoPreseleccionado }) => {
               <option value="">Seleccione un producto</option>
               {productos.map(producto => (
                 <option key={producto.id} value={producto.id}>
-                  {producto.codigo_producto} - {producto.nombre} (Stock: {producto.stock})
+                  {producto.codigo_producto} - {producto.nombre} (Stock: {Number(producto.stock_actual ?? 0)})
                 </option>
               ))}
             </select>
@@ -199,7 +201,7 @@ const MovimientoForm = ({ onClose, onSuccess, productoPreseleccionado }) => {
             {productoSeleccionado && (
               <div className="producto-info">
                 <p><strong>Descripción:</strong> {productoSeleccionado.descripcion}</p>
-                <p><strong>Stock Actual:</strong> {productoSeleccionado.stock} {productoSeleccionado.unidad_medida}</p>
+                <p><strong>Stock Actual:</strong> {Number(productoSeleccionado.stock_actual ?? 0)} {productoSeleccionado.unidad_medida}</p>
                 <p><strong>Precio:</strong> ${productoSeleccionado.precio}</p>
               </div>
             )}
