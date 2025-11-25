@@ -10,6 +10,7 @@ import {
 } from '../../store/slices/clientesSlice'
 import ClienteCard from '../../components/ClienteCard/ClienteCard'
 import ClienteForm from '../../components/ClienteForm/ClienteForm'
+import ClienteEstadisticas from '../../components/ClienteEstadisticas/ClienteEstadisticas'
 import './Clientes.css'
 
 const Clientes = () => {
@@ -120,7 +121,7 @@ const Clientes = () => {
     
     // Cargar estadísticas si no están en caché
     if (!estadisticas[cliente.id]) {
-      await dispatch(obtenerEstadisticasCliente(cliente.id))
+      await dispatch(obtenerEstadisticasCliente({ id: cliente.id }))
     }
   }
 
@@ -335,93 +336,12 @@ const Clientes = () => {
         </div>
       )}
 
-      {/* Modal de estadísticas */}
+      {/* Modal de estadísticas mejorado */}
       {showStats && selectedClienteStats && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="stats-modal">
-              <div className="stats-header">
-                <h2>📊 Estadísticas de Cliente</h2>
-                <button className="close-btn" onClick={handleCloseStats}>
-                  ✕
-                </button>
-              </div>
-              
-              <div className="cliente-info">
-                <h3>{selectedClienteStats.nombre_completo || `${selectedClienteStats.nombre} ${selectedClienteStats.apellido}`}</h3>
-                <p>📄 {selectedClienteStats.documento}</p>
-                <p>📧 {selectedClienteStats.email}</p>
-              </div>
-
-              {estadisticas[selectedClienteStats.id] ? (
-                <div className="stats-grid">
-                  <div className="stat-card">
-                    <div className="stat-icon">🛒</div>
-                    <div className="stat-content">
-                      <h4>Total Compras</h4>
-                      <p className="stat-value">{estadisticas[selectedClienteStats.id].total_compras}</p>
-                    </div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div className="stat-icon">💰</div>
-                    <div className="stat-content">
-                      <h4>Monto Total</h4>
-                      <p className="stat-value">${estadisticas[selectedClienteStats.id].monto_total_comprado?.toLocaleString() || '0'}</p>
-                    </div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div className="stat-icon">📊</div>
-                    <div className="stat-content">
-                      <h4>Compra Promedio</h4>
-                      <p className="stat-value">${estadisticas[selectedClienteStats.id].compra_promedio?.toLocaleString() || '0'}</p>
-                    </div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div className="stat-icon">📦</div>
-                    <div className="stat-content">
-                      <h4>Productos Comprados</h4>
-                      <p className="stat-value">{estadisticas[selectedClienteStats.id].productos_comprados}</p>
-                    </div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div className="stat-icon">💳</div>
-                    <div className="stat-content">
-                      <h4>Crédito Disponible</h4>
-                      <p className="stat-value">${estadisticas[selectedClienteStats.id].credito_disponible?.toLocaleString() || '0'}</p>
-                    </div>
-                  </div>
-
-                  <div className="stat-card">
-                    <div className="stat-icon">📈</div>
-                    <div className="stat-content">
-                      <h4>Crédito Usado</h4>
-                      <p className="stat-value">{estadisticas[selectedClienteStats.id].porcentaje_credito_usado}%</p>
-                    </div>
-                  </div>
-
-                  {estadisticas[selectedClienteStats.id].ultima_compra && (
-                    <div className="stat-card full-width">
-                      <div className="stat-icon">🕒</div>
-                      <div className="stat-content">
-                        <h4>Última Compra</h4>
-                        <p className="stat-value">{new Date(estadisticas[selectedClienteStats.id].ultima_compra).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="loading-stats">
-                  <div className="spinner"></div>
-                  <p>Cargando estadísticas...</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <ClienteEstadisticas
+          cliente={selectedClienteStats}
+          onClose={handleCloseStats}
+        />
       )}
     </div>
   )

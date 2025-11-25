@@ -69,7 +69,7 @@ const StockSucursalCard = ({ stockItem, onActualizar, onVerHistorial }) => {
         {sucursal && (
           <div className="sucursal-info">
             <label>🏭 Sucursal:</label>
-            <span>{sucursal.nombre}</span>
+            <span>{typeof sucursal === 'object' ? (sucursal.nombre || sucursal.id || 'Sin nombre') : sucursal}</span>
           </div>
         )}
 

@@ -736,8 +736,7 @@ const Inventario = () => {
       )}
     </div>
   )
-}
+
 
 export default Inventario
 
-export default Inventario

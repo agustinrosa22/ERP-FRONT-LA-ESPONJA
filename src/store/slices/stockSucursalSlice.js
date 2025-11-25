@@ -1,6 +1,52 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import stockSucursalService from '../../services/stockSucursalService'
 
+// Función para sanitizar objetos anidados y convertirlos a strings seguros
+const sanitizeObject = (obj) => {
+  if (obj === null || obj === undefined) return obj
+  if (typeof obj !== 'object') return obj
+  
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeObject(item))
+  }
+  
+  console.log('🧹 SANITIZANDO OBJETO:', obj)
+  
+  // Crear una copia del objeto
+  const sanitized = { ...obj }
+  
+  // Convertir campos problemáticos conocidos
+  if (sanitized.usuario && typeof sanitized.usuario === 'object') {
+    console.log('👤 SANITIZANDO USUARIO:', sanitized.usuario)
+    const usuarioTexto = sanitized.usuario.nombre || sanitized.usuario.username || `Usuario ${sanitized.usuario.id}` || 'Usuario'
+    console.log('👤 USUARIO CONVERTIDO A:', usuarioTexto)
+    sanitized.usuario = usuarioTexto
+  }
+  
+  if (sanitized.sucursal && typeof sanitized.sucursal === 'object') {
+    console.log('🏢 SANITIZANDO SUCURSAL:', sanitized.sucursal)
+    const sucursalTexto = sanitized.sucursal.nombre || `Sucursal ${sanitized.sucursal.id}` || 'Sucursal'
+    console.log('🏢 SUCURSAL CONVERTIDA A:', sucursalTexto)
+    sanitized.sucursal_nombre = sucursalTexto
+    // Mantenemos el objeto sucursal pero agregamos el nombre como string
+  }
+  
+  if (sanitized.producto && typeof sanitized.producto === 'object') {
+    console.log('🛍️ SANITIZANDO PRODUCTO:', sanitized.producto)
+    // Para productos, mantenemos el objeto ya que lo necesitamos
+    sanitized.producto = {
+      ...sanitized.producto,
+      nombre: String(sanitized.producto.nombre || 'Producto'),
+      codigo_producto: String(sanitized.producto.codigo_producto || ''),
+      unidad_medida: String(sanitized.producto.unidad_medida || '')
+    }
+    console.log('🛍️ PRODUCTO SANITIZADO:', sanitized.producto)
+  }
+  
+  console.log('🧹 OBJETO SANITIZADO FINAL:', sanitized)
+  return sanitized
+}
+
 // Thunks asíncronos
 export const obtenerStockSucursal = createAsyncThunk(
   'stockSucursal/obtenerStock',
@@ -122,10 +168,18 @@ const stockSucursalSlice = createSlice({
       .addCase(obtenerStockSucursal.fulfilled, (state, action) => {
         state.loading = false
         if (action.payload?.success) {
-          state.stockItems = action.payload.data || []
+          console.log('📦 STOCK RAW DATA:', action.payload.data)
+          const sanitizedItems = (action.payload.data || []).map(item => {
+            console.log('📦 Stock item before sanitization:', item)
+            const sanitized = sanitizeObject(item)
+            console.log('📦 Stock item after sanitization:', sanitized)
+            return sanitized
+          })
+          state.stockItems = sanitizedItems
           state.estadisticas = action.payload.estadisticas || null
           state.pagination = action.payload.pagination || null
           state.sucursal_id = action.payload.sucursal_id || null
+          console.log('📦 FINAL STOCK STATE:', { items: sanitizedItems.length, estadisticas: state.estadisticas })
         }
       })
       .addCase(obtenerStockSucursal.rejected, (state, action) => {
@@ -198,7 +252,15 @@ const stockSucursalSlice = createSlice({
       .addCase(obtenerHistorialProducto.fulfilled, (state, action) => {
         state.loadingHistorial = false
         if (action.payload?.success) {
-          state.historialProducto = action.payload.data || []
+          console.log('📋 HISTORIAL RAW DATA:', action.payload.data)
+          const sanitizedHistorial = (action.payload.data || []).map(item => {
+            console.log('📋 Historial item before sanitization:', item)
+            const sanitized = sanitizeObject(item)
+            console.log('📋 Historial item after sanitization:', sanitized)
+            return sanitized
+          })
+          state.historialProducto = sanitizedHistorial
+          console.log('📋 FINAL HISTORIAL STATE:', sanitizedHistorial.length, 'items')
         }
       })
       .addCase(obtenerHistorialProducto.rejected, (state, action) => {

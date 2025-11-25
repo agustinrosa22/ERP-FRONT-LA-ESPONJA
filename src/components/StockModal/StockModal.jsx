@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { actualizarStockSucursal, crearStockSucursal } from '../../store/slices/stockSucursalSlice'
+import { crearMovimiento } from '../../store/slices/inventarioSlice'
 import './StockModal.css'
 
 const StockModal = ({ stock, onClose, onSuccess }) => {
   const dispatch = useDispatch()
   const { loading } = useSelector(state => state.stockSucursal)
-  const { user } = useSelector(state => state.auth)
+  const { usuario } = useSelector(state => state.auth)
+  const { productos = [] } = useSelector(state => state.productos)
+  const { items: sucursales = [] } = useSelector(state => state.sucursales || {})
   
   const [formData, setFormData] = useState({
     producto_id: '',
-    sucursal: '',
+    sucursal_id: '',
     cantidad: '',
     stock_minimo: '',
     stock_maximo: '',
@@ -19,34 +22,41 @@ const StockModal = ({ stock, onClose, onSuccess }) => {
     tipo_movimiento: 'entrada'
   })
 
-  const [productos, setProductos] = useState([])
   const [errors, setErrors] = useState({})
+
+  const esAdmin = (usuario?.rol || '').toLowerCase() === 'admin'
+
+  const getSucursalesDisponibles = () => {
+    if (esAdmin) {
+      return sucursales
+    } else {
+      // Si no es admin, solo mostrar su sucursal
+      const userSucursal = sucursales.find(s => s.id === usuario?.sucursal_id)
+      return userSucursal ? [userSucursal] : []
+    }
+  }
 
   useEffect(() => {
     // Si es edición, cargar datos del stock
     if (stock) {
       setFormData({
-        ...stock,
+        producto_id: stock.producto_id || '',
+        sucursal_id: stock.sucursal_id || usuario?.sucursal_id || '',
         cantidad: '',
+        stock_minimo: stock.stock_minimo || '',
+        stock_maximo: stock.stock_maximo || '',
+        ubicacion: stock.ubicacion || '',
         motivo: '',
         tipo_movimiento: 'entrada'
       })
+    } else {
+      // Para nuevo stock, preseleccionar sucursal del usuario si no es admin
+      setFormData(prev => ({
+        ...prev,
+        sucursal_id: esAdmin ? '' : (usuario?.sucursal_id || '')
+      }))
     }
-
-    // Cargar productos disponibles
-    cargarProductos()
-  }, [stock])
-
-  const cargarProductos = async () => {
-    try {
-      // Aquí deberías obtener los productos del store o API
-      // Por ahora usaré datos del localStorage o store
-      const productosData = JSON.parse(localStorage.getItem('productos') || '[]')
-      setProductos(productosData)
-    } catch (error) {
-      console.error('Error cargando productos:', error)
-    }
-  }
+  }, [stock, usuario, esAdmin])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -71,8 +81,8 @@ const StockModal = ({ stock, onClose, onSuccess }) => {
       newErrors.producto_id = 'Seleccione un producto'
     }
 
-    if (!formData.sucursal) {
-      newErrors.sucursal = 'Seleccione una sucursal'
+    if (!formData.sucursal_id) {
+      newErrors.sucursal_id = 'Seleccione una sucursal'
     }
 
     if (!formData.cantidad || isNaN(formData.cantidad) || parseFloat(formData.cantidad) < 0) {
@@ -108,7 +118,7 @@ const StockModal = ({ stock, onClose, onSuccess }) => {
         cantidad: parseFloat(formData.cantidad),
         stock_minimo: formData.stock_minimo ? parseFloat(formData.stock_minimo) : null,
         stock_maximo: formData.stock_maximo ? parseFloat(formData.stock_maximo) : null,
-        usuario_id: user?.id
+        usuario_id: usuario?.id
       }
 
       let result
@@ -130,18 +140,6 @@ const StockModal = ({ stock, onClose, onSuccess }) => {
     } catch (error) {
       console.error('Error al guardar stock:', error)
     }
-  }
-
-  const getSucursalesDisponibles = () => {
-    const todasSucursales = ['PRINCIPAL', 'DEPOSITO', 'SUCURSAL_1', 'SUCURSAL_2']
-    
-    // Si es admin, puede ver todas las sucursales
-    if (user?.rol === 'ADMIN') {
-      return todasSucursales
-    }
-    
-    // Si es vendedor, solo su sucursal asignada
-    return user?.sucursal ? [user.sucursal] : []
   }
 
   return (
@@ -178,20 +176,20 @@ const StockModal = ({ stock, onClose, onSuccess }) => {
             <div className="form-group">
               <label>Sucursal *</label>
               <select
-                name="sucursal"
-                value={formData.sucursal}
+                name="sucursal_id"
+                value={formData.sucursal_id}
                 onChange={handleInputChange}
-                disabled={stock?.id} // No cambiar sucursal en edición
-                className={errors.sucursal ? 'error' : ''}
+                disabled={stock?.id || !esAdmin} // No cambiar sucursal en edición o si no es admin
+                className={errors.sucursal_id ? 'error' : ''}
               >
                 <option value="">Seleccionar sucursal</option>
                 {getSucursalesDisponibles().map(sucursal => (
-                  <option key={sucursal} value={sucursal}>
-                    {sucursal}
+                  <option key={sucursal.id} value={sucursal.id}>
+                    {sucursal.nombre}
                   </option>
                 ))}
               </select>
-              {errors.sucursal && <span className="error-message">{errors.sucursal}</span>}
+              {errors.sucursal_id && <span className="error-message">{errors.sucursal_id}</span>}
             </div>
           </div>
 

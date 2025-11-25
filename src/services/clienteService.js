@@ -17,8 +17,13 @@ const clienteService = {
   },
 
   // Obtener estadísticas del cliente
-  obtenerEstadisticas: async (id) => {
-    return await api.get(`/clientes/${id}/estadisticas`)
+  obtenerEstadisticas: async (id, params = {}) => {
+    return await api.get(`/clientes/${id}/estadisticas`, { params })
+  },
+
+  // Obtener transacciones del cliente
+  obtenerTransacciones: async (id, params = {}) => {
+    return await api.get(`/clientes/${id}/transacciones`, { params })
   },
 
   // Crear nuevo cliente

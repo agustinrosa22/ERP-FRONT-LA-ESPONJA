@@ -56,9 +56,9 @@ export const buscarClientePorDocumento = createAsyncThunk(
 
 export const obtenerEstadisticasCliente = createAsyncThunk(
   'clientes/obtenerEstadisticas',
-  async (id, { rejectWithValue }) => {
+  async ({ id, params = {} }, { rejectWithValue }) => {
     try {
-      const response = await clienteService.obtenerEstadisticas(id)
+      const response = await clienteService.obtenerEstadisticas(id, params)
       if (response.data.success) {
         return { id, estadisticas: response.data.data }
       } else {
@@ -66,6 +66,22 @@ export const obtenerEstadisticasCliente = createAsyncThunk(
       }
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Error al obtener estadísticas')
+    }
+  }
+)
+
+export const obtenerTransaccionesCliente = createAsyncThunk(
+  'clientes/obtenerTransacciones',
+  async ({ id, params = {} }, { rejectWithValue }) => {
+    try {
+      const response = await clienteService.obtenerTransacciones(id, params)
+      if (response.data.success) {
+        return { id, transacciones: response.data.data }
+      } else {
+        return rejectWithValue(response.data.message)
+      }
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Error al obtener transacciones')
     }
   }
 )
@@ -106,6 +122,7 @@ const initialState = {
   clientes: [],
   clienteSeleccionado: null,
   estadisticas: {},
+  transacciones: {},
   pagination: {
     total: 0,
     page: 1,
@@ -113,6 +130,8 @@ const initialState = {
     totalPages: 1
   },
   loading: false,
+  loadingEstadisticas: false,
+  loadingTransacciones: false,
   error: null,
   searchResults: []
 }
@@ -184,8 +203,29 @@ const clientesSlice = createSlice({
       })
       
       // Obtener estadísticas del cliente
+      .addCase(obtenerEstadisticasCliente.pending, (state) => {
+        state.loadingEstadisticas = true
+      })
       .addCase(obtenerEstadisticasCliente.fulfilled, (state, action) => {
+        state.loadingEstadisticas = false
         state.estadisticas[action.payload.id] = action.payload.estadisticas
+      })
+      .addCase(obtenerEstadisticasCliente.rejected, (state, action) => {
+        state.loadingEstadisticas = false
+        state.error = action.payload
+      })
+      
+      // Obtener transacciones del cliente
+      .addCase(obtenerTransaccionesCliente.pending, (state) => {
+        state.loadingTransacciones = true
+      })
+      .addCase(obtenerTransaccionesCliente.fulfilled, (state, action) => {
+        state.loadingTransacciones = false
+        state.transacciones[action.payload.id] = action.payload.transacciones
+      })
+      .addCase(obtenerTransaccionesCliente.rejected, (state, action) => {
+        state.loadingTransacciones = false
+        state.error = action.payload
       })
       
       // Crear cliente

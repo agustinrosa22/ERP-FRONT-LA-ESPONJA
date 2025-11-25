@@ -97,6 +97,67 @@ Headers comunes:
     - -> cancelada: revierte stock (si correspondía)
     - -> pagada: crea egreso en caja
 
+## Productos
+- GET /api/productos
+  - Query: page, limit, search, categoria, activo, incluir_stock_sucursal, stock_bajo, global
+  - Headers: Authorization, (opcional Admin) X-Sucursal-Id
+  - Respuesta (200)
+    {
+      "success": true,
+      "data": [
+        {
+          "id": 5,
+          "nombre": "Detergente Líquido",
+          "codigo_producto": "DET-001",
+          "categoria": "Limpieza",
+          "precio_venta": 1500,
+          "unidad_medida": "Litros",
+          "activo": true,
+          "stock_actual": 25,
+          "stock_minimo": 10
+        }
+      ]
+    }
+  - Notas: Si admin usa X-Sucursal-Id, filtra por esa sucursal. Si global=true, muestra todos los productos.
+
+- GET /api/productos/:id
+  - Respuesta con detalles del producto específico
+
+## Sucursales
+- GET /api/sucursales
+  - Headers: Authorization
+  - Respuesta (200)
+    {
+      "success": true,
+      "data": [
+        {
+          "id": 1,
+          "nombre": "Sucursal Centro",
+          "direccion": "Calle 123",
+          "telefono": "123456789",
+          "activa": true
+        }
+      ]
+    }
+  - Notas: Admin ve todas las sucursales. Vendedor ve solo la suya.
+
+## Stock por Sucursal
+- GET /api/stock-sucursal
+  - Query: page, limit, producto_id, stock_bajo
+  - Headers: Authorization, (opcional Admin) X-Sucursal-Id
+  - Respuesta (200) con stock actual por producto en la sucursal del contexto
+
+- POST /api/stock-sucursal
+  - Body
+    {
+      "producto_id": 5,
+      "stock_actual": 50,
+      "stock_minimo": 10,
+      "stock_maximo": 100,
+      "ubicacion": "Estante A1"
+    }
+  - Crea/actualiza registro de stock para producto en sucursal del contexto
+
 ## Inventario
 - POST /api/inventario
   - Body

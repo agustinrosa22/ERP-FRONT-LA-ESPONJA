@@ -31,140 +31,118 @@ const Contabilidad = () => {
   const cargando = useSelector(selectCargando)
   const error = useSelector(selectError)
 
-  // Debug: Verificar datos
-  console.log('🔍 Datos Redux en Contabilidad:', {
+  // Debug: Verificar datos REALES del endpoint
+  console.log('🔍 Datos Redux en Contabilidad (SOLO DATOS REALES):', {
     movimientos: movimientos,
     movimientosLength: Array.isArray(movimientos) ? movimientos.length : 'No es array',
     balance: balance,
     estadisticas: estadisticas,
-    resumen: resumen
+    resumen: resumen,
+    balanceCompleto: balance // Ver estructura completa
   })
 
-  // Datos de ejemplo para mostrar la interfaz mientras el backend no esté listo
-  const datosEjemplo = {
-    estadisticas: {
-      ingresos_hoy: 15000,
-      egresos_hoy: 5000,
-      balance_hoy: 10000,
-      balance_mes: 45000,
-      por_categoria: [
-        { categoria: 'venta', total: 25000, cantidad: 15 },
-        { categoria: 'compra', total: 8000, cantidad: 5 },
-        { categoria: 'gasto_operativo', total: 3000, cantidad: 3 }
-      ],
-      por_metodo_pago: [
-        { metodo_pago: 'efectivo', total: 18000, cantidad: 12 },
-        { metodo_pago: 'transferencia', total: 15000, cantidad: 8 }
-      ]
-    },
-    movimientos: [
-      {
-        id: 1,
-        tipo: 'ingreso',
-        monto: 5000,
-        categoria: 'venta',
-        descripcion: 'Venta de productos',
-        metodo_pago: 'efectivo',
-        fecha: new Date().toISOString(),
-        usuario: { nombre: 'Juan Pérez' },
-        estado: 'confirmado'
-      },
-      {
-        id: 2,
-        tipo: 'egreso',
-        monto: 1500,
-        categoria: 'compra',
-        descripcion: 'Compra de materiales',
-        metodo_pago: 'transferencia',
-        fecha: new Date().toISOString(),
-        usuario: { nombre: 'María García' },
-        estado: 'pendiente'
-      }
-    ]
+  // Extraer ÚNICAMENTE datos reales del endpoint /api/caja/balance
+  let ingresoHoy = 0, egresoHoy = 0, balanceHoy = 0, balanceMes = 0
+  
+  // SOLO usar datos del endpoint /api/caja/balance (estructura que me pasaste)
+  if (balance && balance.balance_general) {
+    console.log('📊 ✅ USANDO DATOS REALES del endpoint /api/caja/balance:', balance)
+    ingresoHoy = balance.balance_general.total_ingresos
+    egresoHoy = balance.balance_general.total_egresos
+    balanceHoy = balance.balance_general.balance_neto
+    balanceMes = balance.balance_general.balance_neto // Usar el mismo valor para el mes por ahora
+  } else {
+    console.log('⚠️ NO HAY DATOS del endpoint /api/caja/balance - Mostrando valores en 0')
   }
 
-  // Usar datos de ejemplo si no hay datos del Redux
-  const estadisticasActuales = estadisticas && Object.keys(estadisticas).length > 0 ? estadisticas : datosEjemplo.estadisticas
-  const movimientosActuales = Array.isArray(movimientos) && movimientos.length > 0 ? movimientos : datosEjemplo.movimientos
-  const balanceActual = balance && Object.keys(balance).length > 0 ? balance : null
+  // Debug: verificar valores REALES
+  console.log('💰 VALORES REALES del endpoint /api/caja/balance:', {
+    ingresoHoy,
+    egresoHoy, 
+    balanceHoy,
+    balanceMes,
+    tieneBalance: !!balance,
+    tieneBalanceGeneral: !!(balance && balance.balance_general),
+    estructuraBalance: balance
+  })
 
-  // Extraer datos de estadísticas con la estructura real del backend
-  const ingresoHoy = estadisticasActuales?.balance_hoy?.total_ingresos || 0
-  const egresoHoy = estadisticasActuales?.balance_hoy?.total_egresos || 0
-  const balanceHoy = estadisticasActuales?.balance_hoy?.balance_neto || 0
-  const balanceMes = estadisticasActuales?.balance_mes?.balance_neto || 0
-
-  // Combinar categorías de ingresos y egresos del endpoint balance
+  // Procesar ÚNICAMENTE datos reales del endpoint /api/caja/balance
   let categoriasCombinadas = []
   let metodosPagoCombinados = []
   let movimientosRecientes = []
   
-  // Si tenemos movimientos reales, usarlos para generar estadísticas
-  if (Array.isArray(movimientos) && movimientos.length > 0) {
-    console.log('📊 Generando estadísticas desde movimientos reales:', movimientos.length)
+  // SOLO usar datos del endpoint /api/caja/balance
+  if (balance) {
+    console.log('📊 ✅ Procesando datos REALES del endpoint /api/caja/balance para gráficos:', balance)
     
-    // Agrupar movimientos por categoría y tipo
-    const categoriasMap = {}
-    const metodosMap = {}
-    
-    movimientos.forEach(mov => {
-      // Categorías
-      const catKey = `${mov.categoria}_${mov.tipo}`
-      if (!categoriasMap[catKey]) {
-        categoriasMap[catKey] = {
-          categoria: mov.categoria,
-          tipo: mov.tipo,
-          total: 0
-        }
-      }
-      categoriasMap[catKey].total += parseFloat(mov.monto) || 0
-      
-      // Métodos de pago
-      const metKey = `${mov.metodo_pago}_${mov.tipo}`
-      if (!metodosMap[metKey]) {
-        metodosMap[metKey] = {
-          metodo_pago: mov.metodo_pago,
-          tipo: mov.tipo,
-          total: 0
-        }
-      }
-      metodosMap[metKey].total += parseFloat(mov.monto) || 0
-    })
-    
-    categoriasCombinadas = Object.values(categoriasMap)
-    metodosPagoCombinados = Object.values(metodosMap)
-    movimientosRecientes = movimientos.slice(0, 5) // Últimos 5 movimientos
-    
-    console.log('📊 Categorías procesadas:', categoriasCombinadas)
-    console.log('💳 Métodos de pago procesados:', metodosPagoCombinados)
-    console.log('🕒 Movimientos recientes:', movimientosRecientes)
-    
-  } else if (balanceActual?.ingresos_por_categoria || balanceActual?.egresos_por_categoria) {
-    // Usar datos del balance si están disponibles
-    console.log('📊 Usando datos de balance para categorías')
-    if (balanceActual.ingresos_por_categoria) {
-      balanceActual.ingresos_por_categoria.forEach(cat => {
-        categoriasCombinadas.push({
-          categoria: cat.categoria,
-          total: cat.total,
-          tipo: 'ingreso'
+    // Procesar ingresos por categoría del endpoint real
+    if (balance.ingresos_por_categoria) {
+      if (Array.isArray(balance.ingresos_por_categoria)) {
+        // Si es array
+        balance.ingresos_por_categoria.forEach(cat => {
+          categoriasCombinadas.push({
+            categoria: cat.categoria || 'Sin categoría',
+            total: Number(cat.total) || 0,
+            tipo: 'ingreso'
+          })
         })
-      })
-    }
-    if (balanceActual.egresos_por_categoria) {
-      balanceActual.egresos_por_categoria.forEach(cat => {
-        categoriasCombinadas.push({
-          categoria: cat.categoria,
-          total: cat.total,
-          tipo: 'egreso'
+      } else if (typeof balance.ingresos_por_categoria === 'object') {
+        // Si es objeto (como en tu ejemplo)
+        Object.entries(balance.ingresos_por_categoria).forEach(([categoria, total]) => {
+          categoriasCombinadas.push({
+            categoria: categoria,
+            total: Number(total) || 0,
+            tipo: 'ingreso'
+          })
         })
-      })
+      }
     }
     
-    // Métodos de pago del balance
-    if (balanceActual.por_metodo_pago) {
-      metodosPagoCombinados = balanceActual.por_metodo_pago
+    // Procesar egresos por categoría del endpoint real
+    if (balance.egresos_por_categoria) {
+      if (Array.isArray(balance.egresos_por_categoria)) {
+        // Si es array
+        balance.egresos_por_categoria.forEach(cat => {
+          categoriasCombinadas.push({
+            categoria: cat.categoria || 'Sin categoría',
+            total: Number(cat.total) || 0,
+            tipo: 'egreso'
+          })
+        })
+      } else if (typeof balance.egresos_por_categoria === 'object') {
+        // Si es objeto
+        Object.entries(balance.egresos_por_categoria).forEach(([categoria, total]) => {
+          categoriasCombinadas.push({
+            categoria: categoria,
+            total: Number(total) || 0,
+            tipo: 'egreso'
+          })
+        })
+      }
     }
+    
+    // Métodos de pago del endpoint real
+    if (balance.por_metodo_pago) {
+      if (Array.isArray(balance.por_metodo_pago)) {
+        metodosPagoCombinados = balance.por_metodo_pago.map(mp => ({
+          metodo_pago: mp.metodo_pago || mp.metodo || 'Sin método',
+          total: Number(mp.total) || 0,
+          tipo: mp.tipo || 'N/A'
+        }))
+      } else if (typeof balance.por_metodo_pago === 'object') {
+        metodosPagoCombinados = Object.entries(balance.por_metodo_pago).map(([metodo, total]) => ({
+          metodo_pago: metodo,
+          total: Number(total) || 0,
+          tipo: 'N/A'
+        }))
+      }
+    }
+    
+    console.log('📊 ✅ Categorías REALES procesadas:', categoriasCombinadas)
+    console.log('💳 ✅ Métodos de pago REALES:', metodosPagoCombinados)
+    
+  } else {
+    console.log('⚠️ NO hay datos del endpoint /api/caja/balance - Arrays vacíos')
   }
 
   const [vistaActual, setVistaActual] = useState('dashboard')
@@ -370,7 +348,7 @@ const Contabilidad = () => {
               <div className="stat-icon">💰</div>
               <div className="stat-content">
                 <h3>Ingresos del Día</h3>
-                <p className="stat-value">{formatearMoneda(ingresoHoy)}</p>
+                <p className="stat-value">{formatearMoneda(ingresoHoy || 0)}</p>
               </div>
             </div>
 
@@ -378,7 +356,7 @@ const Contabilidad = () => {
               <div className="stat-icon">💸</div>
               <div className="stat-content">
                 <h3>Egresos del Día</h3>
-                <p className="stat-value">{formatearMoneda(egresoHoy)}</p>
+                <p className="stat-value">{formatearMoneda(egresoHoy || 0)}</p>
               </div>
             </div>
 
@@ -386,8 +364,8 @@ const Contabilidad = () => {
               <div className="stat-icon">📊</div>
               <div className="stat-content">
                 <h3>Balance del Día</h3>
-                <p className={`stat-value ${balanceHoy >= 0 ? 'positive' : 'negative'}`}>
-                  {formatearMoneda(balanceHoy)}
+                <p className={`stat-value ${(balanceHoy || 0) >= 0 ? 'positive' : 'negative'}`}>
+                  {formatearMoneda(balanceHoy || 0)}
                 </p>
               </div>
             </div>
@@ -396,8 +374,8 @@ const Contabilidad = () => {
               <div className="stat-icon">📈</div>
               <div className="stat-content">
                 <h3>Balance del Mes</h3>
-                <p className={`stat-value ${balanceMes >= 0 ? 'positive' : 'negative'}`}>
-                  {formatearMoneda(balanceMes)}
+                <p className={`stat-value ${(balanceMes || 0) >= 0 ? 'positive' : 'negative'}`}>
+                  {formatearMoneda(balanceMes || 0)}
                 </p>
               </div>
             </div>
