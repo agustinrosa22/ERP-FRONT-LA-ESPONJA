@@ -146,7 +146,7 @@ const CajaMovimientoCard = ({ movimiento, onEdit, onDelete }) => {
         )}
       </div>
 
-      <div className="movimiento-actions">
+      {/* <div className="movimiento-actions">
         {onEdit && movimiento.estado !== 'cancelado' && (
           <button 
             className="btn-edit"
@@ -166,7 +166,7 @@ const CajaMovimientoCard = ({ movimiento, onEdit, onDelete }) => {
             🗑️ Eliminar
           </button>
         )}
-      </div>
+      </div> */}
     </div>
   )
 }
