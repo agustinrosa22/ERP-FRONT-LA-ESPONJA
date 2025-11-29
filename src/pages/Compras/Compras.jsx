@@ -226,10 +226,24 @@ const Compras = () => {
   
   const handleVerDetalleCompra = async (compra) => {
     try {
-      setCompraSeleccionada(compra)
+      console.log('🔍 Obteniendo detalles completos de la compra:', compra.id)
+      
+      // Obtener datos completos de la compra con todos los detalles
+      const resultado = await dispatch(obtenerCompraPorId(compra.id)).unwrap()
+      
+      console.log('📦 ✅ Datos completos de la compra obtenidos:', resultado)
+      
+      setCompraSeleccionada(resultado)
       setMostrarDetalleCompra(true)
     } catch (error) {
-      alert(`Error al obtener detalles de la compra: ${error}`)
+      console.error('❌ Error al obtener detalles:', error)
+      
+      // Si falla la carga completa, usar los datos básicos disponibles
+      console.log('⚠️ Usando datos básicos de la compra')
+      setCompraSeleccionada(compra)
+      setMostrarDetalleCompra(true)
+      
+      alert(`Advertencia: No se pudieron cargar todos los detalles. Error: ${error}`)
     }
   }
 
@@ -706,13 +720,13 @@ const Compras = () => {
     )
   )
 
-  // Modal de detalles de compra
+  // Modal de detalles de compra COMPLETO con todos los campos
   const renderModalDetalleCompra = () => (
     mostrarDetalleCompra && compraSeleccionada && (
       <div className="modal-overlay">
         <div className="modal-content compra-detalle-modal">
           <div className="modal-header">
-            <h2>📦 Detalles de Compra #{compraSeleccionada.id}</h2>
+            <h2>📦 Detalles Completos de Compra #{compraSeleccionada.id}</h2>
             <button 
               onClick={() => setMostrarDetalleCompra(false)}
               className="close-button"
@@ -723,9 +737,15 @@ const Compras = () => {
 
           <div className="modal-body">
             <div className="compra-detalle-content">
+              
+              {/* INFORMACIÓN GENERAL */}
               <div className="detalle-section">
                 <h3>📋 Información General</h3>
                 <div className="detalle-grid">
+                  <div className="detalle-item">
+                    <span className="detalle-label">ID Compra:</span>
+                    <span className="detalle-value">{compraSeleccionada.id}</span>
+                  </div>
                   <div className="detalle-item">
                     <span className="detalle-label">Estado:</span>
                     <span className={`status-badge status-${compraSeleccionada.estado}`}>
@@ -733,13 +753,18 @@ const Compras = () => {
                     </span>
                   </div>
                   <div className="detalle-item">
-                    <span className="detalle-label">Proveedor:</span>
-                    <span className="detalle-value">{compraSeleccionada.proveedor?.nombre || 'N/A'}</span>
-                  </div>
-                  <div className="detalle-item">
                     <span className="detalle-label">Fecha de Compra:</span>
                     <span className="detalle-value">
                       {new Date(compraSeleccionada.fecha_compra).toLocaleDateString('es-AR')}
+                    </span>
+                  </div>
+                  <div className="detalle-item">
+                    <span className="detalle-label">Fecha de Vencimiento:</span>
+                    <span className="detalle-value">
+                      {compraSeleccionada.fecha_vencimiento 
+                        ? new Date(compraSeleccionada.fecha_vencimiento).toLocaleDateString('es-AR')
+                        : 'No especificada'
+                      }
                     </span>
                   </div>
                   <div className="detalle-item">
@@ -751,7 +776,107 @@ const Compras = () => {
                     <span className="detalle-value">{compraSeleccionada.numero_remito || 'No asignado'}</span>
                   </div>
                   <div className="detalle-item">
-                    <span className="detalle-label">Total:</span>
+                    <span className="detalle-label">Método de Pago:</span>
+                    <span className="detalle-value">{compraSeleccionada.metodo_pago || 'No especificado'}</span>
+                  </div>
+                  <div className="detalle-item">
+                    <span className="detalle-label">Fecha de Creación:</span>
+                    <span className="detalle-value">
+                      {new Date(compraSeleccionada.fecha_creacion).toLocaleString('es-AR')}
+                    </span>
+                  </div>
+                  <div className="detalle-item">
+                    <span className="detalle-label">Última Actualización:</span>
+                    <span className="detalle-value">
+                      {new Date(compraSeleccionada.fecha_actualizacion).toLocaleString('es-AR')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* INFORMACIÓN DEL PROVEEDOR */}
+              {compraSeleccionada.proveedor && (
+                <div className="detalle-section">
+                  <h3>🏪 Información del Proveedor</h3>
+                  <div className="detalle-grid">
+                    <div className="detalle-item">
+                      <span className="detalle-label">ID Proveedor:</span>
+                      <span className="detalle-value">{compraSeleccionada.proveedor.id}</span>
+                    </div>
+                    <div className="detalle-item">
+                      <span className="detalle-label">Nombre/Razón Social:</span>
+                      <span className="detalle-value">
+                        {compraSeleccionada.proveedor.razon_social || compraSeleccionada.proveedor.nombre}
+                      </span>
+                    </div>
+                    <div className="detalle-item">
+                      <span className="detalle-label">CUIT:</span>
+                      <span className="detalle-value">{compraSeleccionada.proveedor.cuit}</span>
+                    </div>
+                    <div className="detalle-item">
+                      <span className="detalle-label">Teléfono:</span>
+                      <span className="detalle-value">{compraSeleccionada.proveedor.telefono}</span>
+                    </div>
+                    <div className="detalle-item">
+                      <span className="detalle-label">Email:</span>
+                      <span className="detalle-value">{compraSeleccionada.proveedor.email}</span>
+                    </div>
+                    <div className="detalle-item">
+                      <span className="detalle-label">Dirección:</span>
+                      <span className="detalle-value">{compraSeleccionada.proveedor.direccion}</span>
+                    </div>
+                    <div className="detalle-item">
+                      <span className="detalle-label">Contacto:</span>
+                      <span className="detalle-value">
+                        {compraSeleccionada.proveedor.contacto_nombre} 
+                        {compraSeleccionada.proveedor.contacto_telefono && 
+                          ` - ${compraSeleccionada.proveedor.contacto_telefono}`
+                        }
+                      </span>
+                    </div>
+                    <div className="detalle-item">
+                      <span className="detalle-label">Condiciones de Pago:</span>
+                      <span className="detalle-value">{compraSeleccionada.proveedor.condiciones_pago}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* INFORMACIÓN DEL USUARIO */}
+              {/* {compraSeleccionada.usuario && (
+                <div className="detalle-section">
+                  <h3>👤 Usuario que Registró la Compra</h3>
+                  <div className="detalle-grid">
+                    <div className="detalle-item">
+                      <span className="detalle-label">ID Usuario:</span>
+                      <span className="detalle-value">{compraSeleccionada.usuario.id}</span>
+                    </div>
+                    <div className="detalle-item">
+                      <span className="detalle-label">Nombre:</span>
+                      <span className="detalle-value">{compraSeleccionada.usuario.nombre}</span>
+                    </div>
+                  </div>
+                </div>
+              )} */}
+
+              {/* TOTALES Y CÁLCULOS */}
+              <div className="detalle-section">
+                <h3>💰 Resumen Financiero</h3>
+                <div className="detalle-grid">
+                  <div className="detalle-item">
+                    <span className="detalle-label">Subtotal:</span>
+                    <span className="detalle-value">${(compraSeleccionada.subtotal || 0).toLocaleString('es-AR')}</span>
+                  </div>
+                  <div className="detalle-item">
+                    <span className="detalle-label">Descuento:</span>
+                    <span className="detalle-value">${(compraSeleccionada.descuento || 0).toLocaleString('es-AR')}</span>
+                  </div>
+                  <div className="detalle-item">
+                    <span className="detalle-label">Impuestos:</span>
+                    <span className="detalle-value">${(compraSeleccionada.impuestos || 0).toLocaleString('es-AR')}</span>
+                  </div>
+                  <div className="detalle-item">
+                    <span className="detalle-label">Total Final:</span>
                     <span className="detalle-value detalle-total">
                       ${(compraSeleccionada.total || 0).toLocaleString('es-AR')}
                     </span>
@@ -759,21 +884,30 @@ const Compras = () => {
                 </div>
               </div>
 
+              {/* PRODUCTOS DETALLADOS */}
               {compraSeleccionada.detalles && compraSeleccionada.detalles.length > 0 && (
                 <div className="detalle-section">
-                  <h3>📦 Productos</h3>
+                  <h3>📦 Productos Comprados</h3>
                   <div className="productos-table">
                     <div className="table-header">
+                      <span>ID Detalle</span>
                       <span>Producto</span>
+                      <span>Código</span>
+                      <span>Unidad</span>
                       <span>Cantidad</span>
                       <span>Precio Unit.</span>
+                      <span>Descuento Item</span>
                       <span>Subtotal</span>
                     </div>
-                    {compraSeleccionada.detalles.map((detalle, index) => (
-                      <div key={index} className="table-row">
+                    {compraSeleccionada.detalles.map((detalle) => (
+                      <div key={detalle.id} className="table-row">
+                        <span>{detalle.id}</span>
                         <span>{detalle.producto?.nombre || 'Producto eliminado'}</span>
+                        <span>{detalle.producto?.codigo_producto || 'N/A'}</span>
+                        <span>{detalle.producto?.unidad_medida || 'N/A'}</span>
                         <span>{detalle.cantidad}</span>
                         <span>${(detalle.precio_unitario || 0).toLocaleString('es-AR')}</span>
+                        <span>${(detalle.descuento_item || 0).toLocaleString('es-AR')}</span>
                         <span>${(detalle.subtotal || 0).toLocaleString('es-AR')}</span>
                       </div>
                     ))}
@@ -781,12 +915,63 @@ const Compras = () => {
                 </div>
               )}
 
+              {/* REGISTRO DE CAJA */}
+              {compraSeleccionada.registro_caja && (
+                <div className="detalle-section">
+                  <h3>💳 Registro de Caja</h3>
+                  <div className="detalle-grid">
+                    <div className="detalle-item">
+                      <span className="detalle-label">ID Registro:</span>
+                      <span className="detalle-value">{compraSeleccionada.registro_caja.id}</span>
+                    </div>
+                    <div className="detalle-item">
+                      <span className="detalle-label">Monto:</span>
+                      <span className="detalle-value">
+                        ${(compraSeleccionada.registro_caja.monto || 0).toLocaleString('es-AR')}
+                      </span>
+                    </div>
+                    <div className="detalle-item">
+                      <span className="detalle-label">Fecha de Registro:</span>
+                      <span className="detalle-value">
+                        {new Date(compraSeleccionada.registro_caja.fecha).toLocaleString('es-AR')}
+                      </span>
+                    </div>
+                    <div className="detalle-item">
+                      <span className="detalle-label">Estado del Registro:</span>
+                      <span className={`status-badge status-${compraSeleccionada.registro_caja.estado}`}>
+                        {compraSeleccionada.registro_caja.estado}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* OBSERVACIONES */}
               {compraSeleccionada.observaciones && (
                 <div className="detalle-section">
                   <h3>📝 Observaciones</h3>
                   <p className="observaciones-text">{compraSeleccionada.observaciones}</p>
                 </div>
               )}
+
+              {/* INFORMACIÓN ADICIONAL */}
+              {/* <div className="detalle-section">
+                <h3>🏢 Información Adicional</h3>
+                <div className="detalle-grid">
+                  <div className="detalle-item">
+                    <span className="detalle-label">ID Sucursal:</span>
+                    <span className="detalle-value">{compraSeleccionada.sucursal_id}</span>
+                  </div>
+                  <div className="detalle-item">
+                    <span className="detalle-label">ID Usuario:</span>
+                    <span className="detalle-value">{compraSeleccionada.usuario_id}</span>
+                  </div>
+                  <div className="detalle-item">
+                    <span className="detalle-label">ID Proveedor:</span>
+                    <span className="detalle-value">{compraSeleccionada.proveedor_id}</span>
+                  </div>
+                </div>
+              </div> */}
 
               {/* Solo mostrar acciones si hay botones disponibles */}
               {(compraSeleccionada.estado === 'pendiente' || 
@@ -857,18 +1042,7 @@ const Compras = () => {
         <SucursalBadge />
       </div>
 
-      {/* Mensaje informativo temporal */}
-      <div className="info-banner" style={{
-        background: '#e3f2fd',
-        border: '1px solid #2196f3',
-        borderRadius: '8px',
-        padding: '15px',
-        margin: '20px 0',
-        color: '#1565c0'
-      }}>
-        <strong>ℹ️ Información:</strong> Actualmente funcionando con gestión de proveedores. 
-        El módulo de órdenes de compra estará disponible cuando el backend implemente los endpoints correspondientes.
-      </div>
+
 
       {/* Estadísticas Generales */}
       {renderEstadisticasGenerales()}

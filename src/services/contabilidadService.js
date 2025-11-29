@@ -77,16 +77,21 @@ const contabilidadService = {
     }
   },
 
-  // Obtener balance de caja
+  // Obtener balance de caja - Endpoint documentado /api/caja/balance
   obtenerBalance: async (fechaDesde, fechaHasta) => {
     try {
       const params = new URLSearchParams()
-      if (fechaDesde) params.append('fechaDesde', fechaDesde)
-      if (fechaHasta) params.append('fechaHasta', fechaHasta)
+      // Usar nombres de parámetros según documentación oficial
+      if (fechaDesde) params.append('fecha_desde', fechaDesde)
+      if (fechaHasta) params.append('fecha_hasta', fechaHasta)
 
+      console.log('🔗 ✅ Llamando a endpoint /api/caja/balance con parámetros:', { fechaDesde, fechaHasta })
       const response = await api.get(`/caja/balance?${params.toString()}`)
+      
+      console.log('📊 ✅ Respuesta del endpoint /api/caja/balance:', response.data)
       return response.data
     } catch (error) {
+      console.error('❌ Error en endpoint /api/caja/balance:', error)
       throw new Error(error.response?.data?.mensaje || error.response?.data?.message || 'Error al obtener balance')
     }
   },

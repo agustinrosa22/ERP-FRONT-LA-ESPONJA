@@ -17,6 +17,7 @@ import {
   limpiarError
 } from '../../store/slices/contabilidadSlice'
 import CajaMovimientoCard from '../../components/CajaMovimientoCard/CajaMovimientoCard'
+import MovimientoForm from '../../components/MovimientoForm/MovimientoForm'
 import './Contabilidad.css'
 
 const Contabilidad = () => {
@@ -31,6 +32,17 @@ const Contabilidad = () => {
   const cargando = useSelector(selectCargando)
   const error = useSelector(selectError)
 
+  // Estados locales y fechas (DECLARAR PRIMERO)
+  const [vistaActual, setVistaActual] = useState('dashboard')
+  const [mostrarFormulario, setMostrarFormulario] = useState(false)
+  const [movimientoEditando, setMovimientoEditando] = useState(null)
+  const [periodoEstadisticas, setPeriodoEstadisticas] = useState('mes')
+  const [balanceDelMes, setBalanceDelMes] = useState(null)
+
+  // Fechas por defecto (DECLARAR ANTES DE USAR)
+  const fechaHoy = new Date().toISOString().split('T')[0]
+  const fechaHaceUnMes = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+
   // Debug: Verificar datos REALES del endpoint
   console.log('🔍 Datos Redux en Contabilidad (SOLO DATOS REALES):', {
     movimientos: movimientos,
@@ -41,118 +53,131 @@ const Contabilidad = () => {
     balanceCompleto: balance // Ver estructura completa
   })
 
-  // Extraer ÚNICAMENTE datos reales del endpoint /api/caja/balance
+  // Extraer ÚNICAMENTE datos reales del endpoint /api/caja/balance SOLO DEL DÍA DE HOY
   let ingresoHoy = 0, egresoHoy = 0, balanceHoy = 0, balanceMes = 0
   
-  // SOLO usar datos del endpoint /api/caja/balance (estructura que me pasaste)
-  if (balance && balance.balance_general) {
-    console.log('📊 ✅ USANDO DATOS REALES del endpoint /api/caja/balance:', balance)
-    ingresoHoy = balance.balance_general.total_ingresos
-    egresoHoy = balance.balance_general.total_egresos
-    balanceHoy = balance.balance_general.balance_neto
-    balanceMes = balance.balance_general.balance_neto // Usar el mismo valor para el mes por ahora
-  } else {
-    console.log('⚠️ NO HAY DATOS del endpoint /api/caja/balance - Mostrando valores en 0')
-  }
-
-  // Debug: verificar valores REALES
-  console.log('💰 VALORES REALES del endpoint /api/caja/balance:', {
-    ingresoHoy,
-    egresoHoy, 
-    balanceHoy,
-    balanceMes,
+  console.log('🔍 Estado del balance DEL DÍA desde Redux:', {
+    balance,
     tieneBalance: !!balance,
-    tieneBalanceGeneral: !!(balance && balance.balance_general),
-    estructuraBalance: balance
+    tieneData: !!(balance && balance.data),
+    tieneBalanceGeneral: !!(balance && balance.data && balance.data.balance_general),
+    keys: balance ? Object.keys(balance) : null
   })
+  
+  // PROCESAR datos del DÍA DE HOY y del MES por separado
+  
+  // 1. DATOS DEL DÍA DE HOY (balance contiene solo datos del día)
+  // IMPORTANTE: La API devuelve { success: true, data: {...} }
+  const datosDelDia = balance?.data || balance
+  if (datosDelDia && datosDelDia.balance_general) {
+    console.log('📊 ✅ PROCESANDO DATOS DEL DÍA DE HOY:', datosDelDia.balance_general)
+    
+    ingresoHoy = Number(datosDelDia.balance_general.total_ingresos) || 0
+    egresoHoy = Number(datosDelDia.balance_general.total_egresos) || 0
+    balanceHoy = Number(datosDelDia.balance_general.balance_neto) || 0
+    
+    console.log('💰 ✅ VALORES DEL DÍA DE HOY:', {
+      ingresoHoy,
+      egresoHoy,
+      balanceHoy,
+      fechaConsultada: fechaHoy,
+      estructuraOriginal: balance
+    })
+  } else {
+    console.log('⚠️ NO HAY DATOS del día de hoy del endpoint /api/caja/balance')
+    console.log('❌ Balance del día recibido:', balance)
+  }
+  
+  // 2. DATOS DEL MES COMPLETO (balanceDelMes contiene datos acumulados del mes)
+  // IMPORTANTE: La API devuelve { success: true, data: {...} }
+  const datosDelMes = balanceDelMes?.data || balanceDelMes
+  if (datosDelMes && datosDelMes.balance_general) {
+    console.log('📈 ✅ PROCESANDO DATOS DEL MES COMPLETO:', datosDelMes.balance_general)
+    
+    balanceMes = Number(datosDelMes.balance_general.balance_neto) || 0
+    
+    console.log('📊 ✅ VALORES DEL MES COMPLETO:', {
+      ingresosMes: Number(datosDelMes.balance_general.total_ingresos) || 0,
+      egresosMes: Number(datosDelMes.balance_general.total_egresos) || 0,
+      balanceMes,
+      fechaDesde: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+      fechaHasta: fechaHoy,
+      estructuraOriginal: balanceDelMes
+    })
+  } else {
+    // Si no hay datos del mes, usar los del día como fallback
+    balanceMes = balanceHoy
+    console.log('⚠️ NO HAY DATOS del mes - usando balance del día como fallback:', balanceMes)
+    console.log('🔍 Estructura recibida del mes:', balanceDelMes)
+  }
 
   // Procesar ÚNICAMENTE datos reales del endpoint /api/caja/balance
   let categoriasCombinadas = []
   let metodosPagoCombinados = []
   let movimientosRecientes = []
   
-  // SOLO usar datos del endpoint /api/caja/balance
-  if (balance) {
-    console.log('📊 ✅ Procesando datos REALES del endpoint /api/caja/balance para gráficos:', balance)
+  // PROCESAR movimientos recientes desde Redux (para el dashboard)
+  if (Array.isArray(movimientos) && movimientos.length > 0) {
+    // Tomar los primeros 5 movimientos para mostrar como "recientes"
+    movimientosRecientes = movimientos.slice(0, 5)
+    console.log('📝 ✅ MOVIMIENTOS RECIENTES procesados:', {
+      totalMovimientos: movimientos.length,
+      movimientosRecientes: movimientosRecientes.length,
+      movimientosData: movimientosRecientes
+    })
+  } else {
+    console.log('⚠️ NO hay movimientos disponibles en Redux')
+  }
+  
+  // SOLO usar datos reales del endpoint /api/caja/balance según documentación oficial
+  // IMPORTANTE: La API devuelve { success: true, data: {...} }
+  const datosBalance = balance?.data || balance
+  if (datosBalance) {
+    console.log('📊 ✅ Procesando datos REALES del endpoint /api/caja/balance:', datosBalance)
     
-    // Procesar ingresos por categoría del endpoint real
-    if (balance.ingresos_por_categoria) {
-      if (Array.isArray(balance.ingresos_por_categoria)) {
-        // Si es array
-        balance.ingresos_por_categoria.forEach(cat => {
-          categoriasCombinadas.push({
-            categoria: cat.categoria || 'Sin categoría',
-            total: Number(cat.total) || 0,
-            tipo: 'ingreso'
-          })
+    // Procesar ingresos_por_categoria (ARRAY según documentación)
+    if (datosBalance.ingresos_por_categoria && Array.isArray(datosBalance.ingresos_por_categoria)) {
+      datosBalance.ingresos_por_categoria.forEach(item => {
+        categoriasCombinadas.push({
+          categoria: item.categoria || 'Sin categoría',
+          total: Number(item.total) || 0,
+          tipo: 'ingreso'
         })
-      } else if (typeof balance.ingresos_por_categoria === 'object') {
-        // Si es objeto (como en tu ejemplo)
-        Object.entries(balance.ingresos_por_categoria).forEach(([categoria, total]) => {
-          categoriasCombinadas.push({
-            categoria: categoria,
-            total: Number(total) || 0,
-            tipo: 'ingreso'
-          })
-        })
-      }
+      })
+      console.log('📈 ✅ INGRESOS por categoría procesados:', datosBalance.ingresos_por_categoria)
     }
     
-    // Procesar egresos por categoría del endpoint real
-    if (balance.egresos_por_categoria) {
-      if (Array.isArray(balance.egresos_por_categoria)) {
-        // Si es array
-        balance.egresos_por_categoria.forEach(cat => {
-          categoriasCombinadas.push({
-            categoria: cat.categoria || 'Sin categoría',
-            total: Number(cat.total) || 0,
-            tipo: 'egreso'
-          })
+    // Procesar egresos_por_categoria (ARRAY según documentación) 
+    if (datosBalance.egresos_por_categoria && Array.isArray(datosBalance.egresos_por_categoria)) {
+      datosBalance.egresos_por_categoria.forEach(item => {
+        categoriasCombinadas.push({
+          categoria: item.categoria || 'Sin categoría',
+          total: Number(item.total) || 0,
+          tipo: 'egreso'
         })
-      } else if (typeof balance.egresos_por_categoria === 'object') {
-        // Si es objeto
-        Object.entries(balance.egresos_por_categoria).forEach(([categoria, total]) => {
-          categoriasCombinadas.push({
-            categoria: categoria,
-            total: Number(total) || 0,
-            tipo: 'egreso'
-          })
-        })
-      }
+      })
+      console.log('📉 ✅ EGRESOS por categoría procesados:', datosBalance.egresos_por_categoria)
     }
     
-    // Métodos de pago del endpoint real
-    if (balance.por_metodo_pago) {
-      if (Array.isArray(balance.por_metodo_pago)) {
-        metodosPagoCombinados = balance.por_metodo_pago.map(mp => ({
-          metodo_pago: mp.metodo_pago || mp.metodo || 'Sin método',
-          total: Number(mp.total) || 0,
-          tipo: mp.tipo || 'N/A'
-        }))
-      } else if (typeof balance.por_metodo_pago === 'object') {
-        metodosPagoCombinados = Object.entries(balance.por_metodo_pago).map(([metodo, total]) => ({
-          metodo_pago: metodo,
-          total: Number(total) || 0,
-          tipo: 'N/A'
-        }))
-      }
+    // Procesar por_metodo_pago (ARRAY según documentación)
+    if (datosBalance.por_metodo_pago && Array.isArray(datosBalance.por_metodo_pago)) {
+      metodosPagoCombinados = datosBalance.por_metodo_pago.map(item => ({
+        metodo_pago: item.metodo_pago || 'Sin método',
+        total: Number(item.total) || 0,
+        tipo: item.tipo || 'N/A'
+      }))
+      console.log('💳 ✅ MÉTODOS de pago procesados:', datosBalance.por_metodo_pago)
     }
     
-    console.log('📊 ✅ Categorías REALES procesadas:', categoriasCombinadas)
-    console.log('💳 ✅ Métodos de pago REALES:', metodosPagoCombinados)
+    console.log('🏷️ ✅ CATEGORÍAS FINALES (arrays reales):', categoriasCombinadas)
+    console.log('💳 ✅ MÉTODOS FINALES (arrays reales):', metodosPagoCombinados)
     
   } else {
     console.log('⚠️ NO hay datos del endpoint /api/caja/balance - Arrays vacíos')
+    console.log('🔍 Estructura recibida del balance:', balance)
   }
 
-  const [vistaActual, setVistaActual] = useState('dashboard')
-  const [mostrarFormulario, setMostrarFormulario] = useState(false)
-  const [movimientoEditando, setMovimientoEditando] = useState(null)
-  const [periodoEstadisticas, setPeriodoEstadisticas] = useState('mes')
 
-  // Fechas por defecto (último mes)
-  const fechaHoy = new Date().toISOString().split('T')[0]
-  const fechaHaceUnMes = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
   useEffect(() => {
     cargarDatos()
@@ -199,10 +224,27 @@ const Contabilidad = () => {
   const cargarDatos = async () => {
     try {
       // Cargar datos iniciales
-      console.log('Cargando datos de contabilidad...')
+      console.log('🔄 Iniciando carga de datos de contabilidad...')
+      console.log('📅 Parámetros de fecha:', { 
+        fechaHaceUnMes, 
+        fechaHoy,
+        formatoEsperado: 'YYYY-MM-DD'
+      })
+      
+      // Obtener primer día del mes actual
+      const primerDiaDelMes = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]
+      
+      console.log('🔗 ENDPOINTS QUE SE VAN A LLAMAR:')
+      console.log(`1. Balance del día: GET /api/caja/balance?fecha_desde=${fechaHoy}&fecha_hasta=${fechaHoy}`)
+      console.log(`2. Balance del mes: GET /api/caja/balance?fecha_desde=${primerDiaDelMes}&fecha_hasta=${fechaHoy}`)
+      console.log(`3. Estadísticas: GET /api/caja/estadisticas?periodo=mes`)
+      console.log(`4. Movimientos: GET /api/caja?limit=10&page=1&fecha_desde=${fechaHaceUnMes}&fecha_hasta=${fechaHoy}`)
       
       const resultados = await Promise.all([
-        dispatch(obtenerBalance({ fechaDesde: fechaHaceUnMes, fechaHasta: fechaHoy })),
+        // Balance SOLO DEL DÍA DE HOY (para ingresos/egresos/balance del día)
+        dispatch(obtenerBalance({ fechaDesde: fechaHoy, fechaHasta: fechaHoy })),
+        // Balance DEL MES ACTUAL (del primer día del mes hasta hoy)  
+        dispatch(obtenerBalance({ fechaDesde: primerDiaDelMes, fechaHasta: fechaHoy })),
         dispatch(obtenerEstadisticas('mes')),
         dispatch(obtenerMovimientos({
           limite: 10,
@@ -212,13 +254,33 @@ const Contabilidad = () => {
         }))
       ])
       
-      console.log('Resultados cargados:', {
-        balance: resultados[0],
-        estadisticas: resultados[1],
-        movimientos: resultados[2]
+      console.log('✅ Resultados cargados del dispatch:', {
+        balanceDelDia: resultados[0], // Balance SOLO del día de hoy
+        balanceDelMes: resultados[1], // Balance del mes actual
+        estadisticasMes: resultados[2], 
+        movimientosUltimoMes: resultados[3]
       })
+      
+      // Guardar el balance del mes en el estado local
+      if (resultados[1] && resultados[1].payload) {
+        setBalanceDelMes(resultados[1].payload)
+        console.log('📊 Balance del mes actual guardado:', resultados[1].payload)
+      }
+      
+      // Verificar específicamente el payload del balance DEL DÍA
+      if (resultados[0] && resultados[0].payload) {
+        console.log('🔍 Balance DEL DÍA DE HOY:', resultados[0].payload)
+        console.log('💰 Ingresos de hoy específicamente:', resultados[0].payload?.balance_general?.total_ingresos || 0)
+      }
+      
+      // Verificar específicamente el payload de movimientos
+      if (resultados[3] && resultados[3].payload) {
+        console.log('🔍 Payload de movimientos detallado:', resultados[3].payload)
+        console.log('📝 Cantidad de movimientos:', Array.isArray(resultados[3].payload) ? resultados[3].payload.length : 'No es array')
+      }
+      
     } catch (error) {
-      console.error('Error al cargar datos:', error)
+      console.error('❌ Error al cargar datos:', error)
     }
   }
 
@@ -342,6 +404,8 @@ const Contabilidad = () => {
 
       {vistaActual === 'dashboard' && (
         <div className="dashboard-section">
+        
+          
           {/* Tarjetas de estadísticas principales */}
           <div className="stats-cards">
             <div className="stat-card ingresos">
@@ -377,6 +441,15 @@ const Contabilidad = () => {
                 <p className={`stat-value ${(balanceMes || 0) >= 0 ? 'positive' : 'negative'}`}>
                   {formatearMoneda(balanceMes || 0)}
                 </p>
+                {(() => {
+                  const datosMes = balanceDelMes?.data || balanceDelMes
+                  return datosMes && datosMes.balance_general && (
+                    <small style={{ fontSize: '0.75rem', opacity: 0.7 }}>
+                      Ingresos: {formatearMoneda(datosMes.balance_general.total_ingresos || 0)} |
+                      Egresos: {formatearMoneda(datosMes.balance_general.total_egresos || 0)}
+                    </small>
+                  )
+                })()}
               </div>
             </div>
           </div>
@@ -432,9 +505,14 @@ const Contabilidad = () => {
 
           {/* Últimos movimientos */}
           <div className="recent-movements">
-            <h3>Últimos Movimientos</h3>
+            <h3>Últimos Movimientos ({movimientosRecientes.length})</h3>
             <div className="movements-list">
-              {movimientosRecientes && movimientosRecientes.length > 0 ? (
+              {console.log('🔍 DEBUG Renderizando movimientos recientes:', {
+                movimientosRecientes,
+                length: movimientosRecientes.length,
+                isArray: Array.isArray(movimientosRecientes)
+              })}
+              {Array.isArray(movimientosRecientes) && movimientosRecientes.length > 0 ? (
                 movimientosRecientes.map((movimiento) => (
                   <CajaMovimientoCard 
                     key={movimiento.id} 
@@ -442,10 +520,27 @@ const Contabilidad = () => {
                     onEdit={setMovimientoEditando}
                   />
                 ))
+              ) : cargando ? (
+                <div className="loading">
+                  <div className="loading-spinner"></div>
+                  Cargando movimientos recientes...
+                </div>
               ) : (
                 <div className="no-data">
-                  <p>No hay movimientos para mostrar</p>
-                  <small>No hay movimientos recientes disponibles</small>
+                  <p>No hay movimientos recientes</p>
+                  <small>
+                    {Array.isArray(movimientos) ? 
+                      `Total de movimientos en sistema: ${movimientos.length}` :
+                      'No hay movimientos cargados desde el backend'
+                    }
+                  </small>
+                  <button 
+                    onClick={cargarDatos}
+                    className="btn-outline"
+                    style={{ marginTop: '10px' }}
+                  >
+                    🔄 Recargar Datos
+                  </button>
                 </div>
               )}
             </div>

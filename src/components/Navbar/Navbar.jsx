@@ -23,7 +23,7 @@ const Navbar = () => {
     { path: '/contabilidad', label: 'Contabilidad', icon: '💰' },
     { path: '/ventas', label: 'Ventas', icon: '🛒' },
     { path: '/compras', label: 'Compras', icon: '🛍️' },
-    { path: '/reportes', label: 'Reportes', icon: '📈' },
+    // { path: '/reportes', label: 'Reportes', icon: '📈' },
     { path: '/ayuda', label: 'Ayuda', icon: '❓' },
   ]
 
